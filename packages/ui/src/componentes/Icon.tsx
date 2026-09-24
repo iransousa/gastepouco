@@ -76,6 +76,12 @@ export const DESENHOS = {
     'M12 3v12M7 10l5 5 5-5M4 21h16',
   receipt:
     'M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6',
+  // Mostrar/esconder senha na tela Entrar. Nao vinha no bundle de referencia,
+  // mas o prototipo da tela ja usava este desenho.
+  eye:
+    'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6',
+  eyeOff:
+    'M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.9 5.2A9.6 9.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.2 6.2A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 3.5-.6',
 } as const;
 
 export type IconName = keyof typeof DESENHOS;

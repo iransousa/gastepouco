@@ -8,6 +8,8 @@ import { EmailModule } from './modules/email/email.module.js';
 import { JogoModule } from './modules/jogo/jogo.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { ContaModule } from './modules/conta/conta.module.js';
+import { DevModule } from './modules/dev/dev.module.js';
+import { configuracao } from './comum/configuracao.js';
 
 /**
  * Módulo raiz. Os módulos de nota, preços, lista e ranking entram nas fases
@@ -25,6 +27,8 @@ import { ContaModule } from './modules/conta/conta.module.js';
     SaudeModule,
     AuthModule,
     ContaModule,
+    // Atalhos de teste. Fora de produção, e o próprio controller confere de novo.
+    ...(configuracao.ehProducao ? [] : [DevModule]),
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

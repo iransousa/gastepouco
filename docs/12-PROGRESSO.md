@@ -6,7 +6,7 @@ Estado de cada fase de `11-ROADMAP-E-PROMPTS.md`. Atualize ao concluir uma fase.
 | --- | --- | --- |
 | 0 | Monorepo e infraestrutura | ✅ **EXECUTADO** |
 | 1 | Design system em código | ✅ **EXECUTADO** |
-| 2 | Primeiro uso e acesso | 🟡 **PARCIAL** — API pronta e verificada; as 9 telas faltam |
+| 2 | Primeiro uso e acesso | ✅ **EXECUTADO** |
 | 3 | Ler nota fiscal | ⬜ PLANEJADO |
 | 4 | Início, gastos e detalhe da nota | ⬜ PLANEJADO |
 | 5 | Preços da região, lista e ofertas | ⬜ PLANEJADO |
@@ -85,9 +85,9 @@ pulada em silêncio, porque não há canvas.
 As duas divergências de `bundle.css` estão comentadas no lugar, com a medição,
 para ninguém "restaurar" depois.
 
-## Fase 2 — parcial
+## Fase 2 — executado
 
-**Pronto e verificado contra o banco real:**
+**API, verificada contra o banco real:**
 
 - `POST /auth/register`, `verify-email`, `resend-code`, `login`, `refresh`,
   `logout`, `forgot-password`, `reset-password`, `GET /auth/sessions`
@@ -101,9 +101,42 @@ para ninguém "restaurar" depois.
 Fluxo conferido ponta a ponta: cadastro → código no log → confirmação →
 **150 pontos**, com o segundo envio do perfil dando 0.
 
-**Falta:** as 9 telas (Onboarding1–3, CriarConta, VerificarEmail, Entrar,
-GoogleLogin, RecuperarSenha, PerfilConsumo, PerfilPronto), a estratégia do
-Google OAuth e o teste do Playwright do fluxo completo.
+**Telas:** as 9 de primeiro uso e acesso, com 57 testes do Playwright passando
+nos três temas — incluindo o fluxo inteiro em contraste, letra Muito grande e
+320px de largura.
+
+### Decisões das telas
+
+- **Radio e checkbox nativos no perfil de consumo**, não `button` com
+  `role="radio"`. Um radiogroup ARIA só está certo se as setas do teclado
+  navegarem entre as opções, e isso o navegador já faz de graça com o elemento
+  real (docs/08-ACESSIBILIDADE.md, "Elementos reais").
+- **Um campo só para o código de 6 dígitos**, não seis caixinhas. Seis campos
+  quebram o preenchimento automático do celular, atrapalham o leitor de tela e
+  tornam corrigir um dígito um pequeno inferno para quem tem pouca firmeza no
+  toque. `autoComplete="one-time-code"` faz o sistema oferecer o código.
+- **A tela do Google é do GasteMenos**, não uma imitação da do Google, e diz o
+  que o app recebe antes de mandar para lá.
+- **O access token vive em memória, nunca em localStorage**, e a sessão volta
+  pelo cookie httpOnly ao recarregar. Um 401 dispara uma renovação e repete a
+  chamada, com uma renovação por vez — o refresh é rotativo e duas em paralelo
+  se queimariam.
+- **Ícones `eye`/`eyeOff` acrescentados ao design system**: o protótipo da tela
+  Entrar já usava esse desenho, mas ele não vinha no bundle de referência.
+
+### Limites de requisição e a suíte
+
+As rotas de acesso têm limite por IP e os três projetos do Playwright rodam do
+mesmo IP. `RATE_LIMIT_TEST_FACTOR` multiplica os limites em desenvolvimento; o
+boot **recusa** esse valor em produção. Afrouxar o limite para o teste passar
+seria trocar uma proteção real por um check verde.
+
+### Rota de desenvolvimento
+
+`GET /v1/dev/codigo?email=` devolve o código de confirmação, para o teste de
+ponta a ponta não precisar raspar log. Três travas, porque uma só fica a uma
+linha de um incidente: o módulo só é registrado fora de produção, o controller
+confere `NODE_ENV` a cada chamada, e a rota fica fora do Swagger.
 
 ### Acrescentado ao schema
 

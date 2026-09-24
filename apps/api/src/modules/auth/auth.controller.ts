@@ -16,9 +16,11 @@ import type { Request, Response } from 'express';
 import { erro } from '@gastemenos/shared';
 import { configuracao } from '../../comum/configuracao.js';
 import { UsuarioAtual, type UsuarioAutenticado } from '../../comum/usuario-atual.js';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service.js';
 import { SessoesService, type ParDeTokens } from './sessoes.service.js';
 import { JwtGuarda } from './guardas/jwt.guarda.js';
+import type { PerfilDoGoogle } from './estrategias/google.estrategia.js';
 import {
   ConfirmarEmailDto,
   EntrarDto,
@@ -29,6 +31,11 @@ import {
 } from './dto/auth.dto.js';
 
 const COOKIE_DE_REFRESH = 'gm_refresh';
+
+/** Limite de produção, multiplicado só quando a suíte pede (ver configuracao). */
+function limite(requisicoes: number): number {
+  return requisicoes * configuracao.fatorDeLimite;
+}
 
 @ApiTags('auth')
 @Controller('auth')
@@ -75,14 +82,14 @@ export class AuthController {
   // ----------------------------------------------------------- cadastro
 
   @Post('register')
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: limite(5), ttl: 60_000 } })
   @ApiOperation({ summary: 'Cria a conta e envia o código de confirmação' })
   async registrar(@Body() dados: RegistrarDto) {
     return this.auth.registrar(dados);
   }
 
   @Post('verify-email')
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @Throttle({ default: { limit: limite(10), ttl: 60_000 } })
   @ApiOperation({ summary: 'Confirma o e-mail e dá os 50 pontos de boas-vindas' })
   async confirmarEmail(
     @Body() dados: ConfirmarEmailDto,
@@ -99,7 +106,7 @@ export class AuthController {
 
   @Post('resend-code')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Throttle({ default: { limit: 1, ttl: 60_000 } })
+  @Throttle({ default: { limit: limite(1), ttl: 60_000 } })
   @ApiOperation({ summary: 'Reenvia o código (1 por minuto)' })
   async reenviarCodigo(@Body() dados: ReenviarCodigoDto): Promise<void> {
     await this.auth.reenviarCodigo(dados.email);
@@ -109,7 +116,7 @@ export class AuthController {
 
   @Post('login')
   // 5 tentativas por 15 minutos, como manda docs/09-SEGURANCA-LGPD.md.
-  @Throttle({ default: { limit: 5, ttl: 900_000 } })
+  @Throttle({ default: { limit: limite(5), ttl: 900_000 } })
   @ApiOperation({ summary: 'Entra com e-mail e senha' })
   async entrar(
     @Body() dados: EntrarDto,
@@ -155,7 +162,7 @@ export class AuthController {
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Throttle({ default: { limit: 3, ttl: 900_000 } })
+  @Throttle({ default: { limit: limite(3), ttl: 900_000 } })
   @ApiOperation({
     summary: 'Pede o link de nova senha',
     description:
@@ -167,10 +174,49 @@ export class AuthController {
 
   @Post('reset-password')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Throttle({ default: { limit: 5, ttl: 900_000 } })
+  @Throttle({ default: { limit: limite(5), ttl: 900_000 } })
   @ApiOperation({ summary: 'Define a nova senha e derruba todas as sessões' })
   async novaSenha(@Body() dados: NovaSenhaDto): Promise<void> {
     await this.auth.definirNovaSenha(dados.token, dados.password);
+  }
+
+  // ------------------------------------------------------ Google (OAuth 2)
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Manda para o Google (PKCE + state)' })
+  entrarComGoogle(): void {
+    // O guard redireciona. Nada para fazer aqui.
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({
+    summary: 'Volta do Google, cria a sessão e devolve o navegador ao app',
+    description:
+      'Redireciona em vez de responder JSON: quem chega aqui é o navegador vindo do Google, não o fetch do app.',
+  })
+  async retornoDoGoogle(
+    @Req() requisicao: Request & { user?: PerfilDoGoogle },
+    @Res() resposta: Response,
+  ): Promise<void> {
+    const perfil = requisicao.user;
+    if (!perfil) {
+      resposta.redirect(`${configuracao.enderecoDoApp}/entrar?erro=google`);
+      return;
+    }
+
+    const { tokens, primeiroAcesso } = await this.auth.entrarComGoogle(
+      perfil,
+      this.aparelho(requisicao),
+    );
+
+    this.gravarCookie(resposta, tokens.refresh);
+
+    // Sem access na URL: query string vai para histórico, log de servidor e
+    // cabeçalho Referer. O app chama /auth/refresh e pega o access pelo cookie.
+    const destino = primeiroAcesso ? '/perfil-de-consumo' : '/inicio';
+    resposta.redirect(`${configuracao.enderecoDoApp}${destino}`);
   }
 
   // ------------------------------------------------------------ sessões

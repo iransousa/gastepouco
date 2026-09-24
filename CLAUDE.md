@@ -8,7 +8,7 @@ Veja `docs/12-PROGRESSO.md` para o que já foi executado, o que falta e as
 decisões de ambiente tomadas no caminho. Atualize esse arquivo ao concluir uma
 fase.
 
-Resumo: fases 0 e 1 executadas; fase 2 com a API pronta e as telas pendentes.
+Resumo: fases 0, 1 e 2 executadas. Próxima: fase 3 (ler nota fiscal).
 
 ## Fonte da verdade
 

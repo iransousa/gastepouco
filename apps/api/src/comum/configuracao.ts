@@ -48,6 +48,26 @@ export const configuracao = {
     return obrigatorio('USER_HASH_SECRET', 'hash-local-de-desenvolvimento');
   },
 
+  /**
+   * Multiplicador dos limites de requisição, só para a suíte automatizada.
+   *
+   * Os três projetos do Playwright rodam do mesmo IP e o limite é por IP:
+   * sem isto, a segunda execução da suíte no mesmo quarto de hora falha em
+   * rotas que estão funcionando. Afrouxar o limite em desenvolvimento é
+   * aceitável; em produção não é, então o boot recusa.
+   *
+   * O limite em si é testado à parte, com o valor de produção.
+   */
+  get fatorDeLimite(): number {
+    const bruto = Number(process.env.RATE_LIMIT_TEST_FACTOR ?? 1);
+    const fator = Number.isFinite(bruto) && bruto >= 1 ? bruto : 1;
+
+    if (fator !== 1 && process.env.NODE_ENV === 'production') {
+      throw new Error('RATE_LIMIT_TEST_FACTOR não pode ser usado em produção.');
+    }
+    return fator;
+  },
+
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID ?? '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',

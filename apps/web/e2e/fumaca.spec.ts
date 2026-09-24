@@ -2,14 +2,14 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 /**
- * Teste de fumaça da Fase 0: o app sobe, responde e não tem violação de axe.
- * Os fluxos de verdade (primeiro uso, ler nota, ver preço, encerrar conta)
- * entram a partir da Fase 2.
+ * Teste de fumaça: o app sobe, a raiz leva ao primeiro uso e não há violação
+ * de axe. Os fluxos completos ficam em primeiro-uso.spec.ts.
  */
-test('o app abre e não tem violação de acessibilidade', async ({ page }) => {
+test('a raiz leva às boas-vindas e não tem violação de acessibilidade', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { name: 'GasteMenos' })).toBeVisible();
+  await expect(page).toHaveURL(/\/boas-vindas\/1$/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Leia a nota');
 
   const resultado = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])

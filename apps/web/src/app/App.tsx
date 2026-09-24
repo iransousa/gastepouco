@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Link, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { AppearanceProvider, ProvedorDeLink, type ComponenteDeLink } from '@gastemenos/ui';
+import { ProvedorDeSessao } from './sessao.js';
 import { rotas } from './rotas.js';
 
 /**
@@ -38,7 +39,9 @@ export function App(): React.ReactElement {
     <AppearanceProvider>
       <ProvedorDeLink link={LinkDoRouter}>
         <QueryClientProvider client={cliente}>
-          <RouterProvider router={roteador} />
+          <ProvedorDeSessao>
+            <RouterProvider router={roteador} />
+          </ProvedorDeSessao>
         </QueryClientProvider>
       </ProvedorDeLink>
     </AppearanceProvider>

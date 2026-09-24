@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { SessoesService } from './sessoes.service.js';
 import { JwtEstrategia } from './estrategias/jwt.estrategia.js';
+import { GoogleEstrategia } from './estrategias/google.estrategia.js';
 
 @Module({
   imports: [
@@ -16,7 +17,16 @@ import { JwtEstrategia } from './estrategias/jwt.estrategia.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, SessoesService, JwtEstrategia],
+  providers: [
+    AuthService,
+    SessoesService,
+    JwtEstrategia,
+    // Sem credenciais do Google a estratégia derruba o boot ao registrar.
+    // Em desenvolvimento isso impediria de subir a API sem uma conta no
+    // Google Cloud, então ela só entra quando está configurada — e as rotas
+    // /auth/google respondem 404 até lá.
+    ...(configuracao.google.configurado ? [GoogleEstrategia] : []),
+  ],
   exports: [AuthService, SessoesService],
 })
 export class AuthModule {}
