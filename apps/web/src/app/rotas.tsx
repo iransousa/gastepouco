@@ -13,6 +13,8 @@ import { PerfilDeConsumo } from '../rotas/perfil-de-consumo/PerfilDeConsumo.js';
 import { PerfilPronto } from '../rotas/perfil-de-consumo/PerfilPronto.js';
 import { Escanear } from '../rotas/ler-nota/Escanear.js';
 import { NotaLida } from '../rotas/notas/NotaLida.js';
+import { DetalheNota } from '../rotas/notas/DetalheNota.js';
+import { Gastos } from '../rotas/gastos/Gastos.js';
 
 /**
  * Mapa de rotas (docs/05-TELAS-E-ROTAS.md). Os caminhos estão em português
@@ -63,6 +65,22 @@ export const rotas: RouteObject[] = [
     element: (
       <ExigeSessao>
         <NotaLida />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/notas/:id',
+    element: (
+      <ExigeSessao>
+        <DetalheNota />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/gastos',
+    element: (
+      <ExigeSessao>
+        <Gastos />
       </ExigeSessao>
     ),
   },

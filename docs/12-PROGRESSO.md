@@ -8,7 +8,7 @@ Estado de cada fase de `11-ROADMAP-E-PROMPTS.md`. Atualize ao concluir uma fase.
 | 1 | Design system em código | ✅ **EXECUTADO** |
 | 2 | Primeiro uso e acesso | ✅ **EXECUTADO** |
 | 3 | Ler nota fiscal | 🟡 **PARCIAL** — tudo implementado e testado; falta validar contra uma nota real do DF |
-| 4 | Início, gastos e detalhe da nota | ⬜ PLANEJADO |
+| 4 | Início, gastos e detalhe da nota | ✅ **EXECUTADO** |
 | 5 | Preços da região, lista e ofertas | ⬜ PLANEJADO |
 | 6 | Jogo: níveis, selos, ranking, compartilhar | ⬜ PLANEJADO |
 | 7 | Minha conta, notificações e ajuda | ⬜ PLANEJADO |
@@ -195,3 +195,63 @@ o lembrete de remover o CPF do consumidor antes de commitar.
   mesmo HTML dá o mesmo resultado e só gasta visita ao portal.
 - **A URL do QR é apagada depois de processar** (docs/09, "Minimização").
 - **`eslint-plugin-react-hooks` ativado** no web e no design system.
+
+
+## Fase 4 — executado
+
+Endpoints `/spending/summary`, `/categories`, `/weeks`, `/insights`; gráficos
+`DonutChart` e `WeeklyBars` em SVG próprio; telas Início, Início no modo fácil,
+Gastos e Detalhe da nota; cache no IndexedDB para o app abrir sem rede.
+
+**O aceite está provado por teste** (`test/gastos.spec.ts`, 12 casos): o seed
+reproduz R$ 1.284,60 em setembro, R$ 4.212,90 no trimestre, R$ 12.940,30 no
+ano, as 5 categorias uma a uma e os 42% de Mercearia do miolo da rosca. Se
+alguém mexer num preço do seed ou num cálculo, a divergência aparece ali, não
+três telas depois.
+
+### Defeito de daltonismo na paleta dos gráficos
+
+A paleta `chart-1..5` foi medida com o validador, não avaliada no olho. Na
+ordem de uso da tela Gastos:
+
+| Tema | Separação para daltonismo (pior par vizinho) |
+| --- | --- |
+| Claro | ΔE 18,5 — passa |
+| Escuro | **ΔE 4,7 (protan)** — abaixo do piso de 6 |
+| Alto contraste | **ΔE 3,0 (deutan)** — abaixo do piso de 6 |
+
+O par ruim era Hortifrúti (`chart-4`) contra Bebidas (`chart-2`) — **fatias
+vizinhas da rosca**. Abaixo de ΔE 6 nem legenda escrita resolve: as duas são
+literalmente a mesma cor para quem tem protanopia ou deuteranopia.
+
+`chart-4` foi trocado **só no escuro e no alto contraste**, com valores
+calculados e reconferidos: `#6BC7DA` (ΔE 13,4) e `#00708F` (ΔE 14,3). O tema
+claro passa e não foi tocado. **Esta é uma mudança de cor de marca** — se o
+time de design discordar, o caminho é escolher outro valor que passe no
+validador, não voltar ao anterior.
+
+Os outros avisos do validador (faixa de luminosidade e piso de croma) foram
+deixados como estão: são sinais de qualidade da paleta, não falhas de leitura,
+e mexer neles seria redesenhar a identidade.
+
+### Decisões dos gráficos
+
+- **Cor segue a categoria, nunca a posição no ranking.** Quem aprendeu
+  "Mercearia é verde" não pode ver isso mudar porque um mês trocou a ordem.
+- **Vão de 2px entre fatias, não borda.** Borda escurece; o vão separa e é o
+  que distingue fatias vizinhas sem depender de cor.
+- **Nenhum número em cima de cada barra.** O valor de cada semana está na lista
+  abaixo, que é a versão em tabela do mesmo dado.
+- **Todo gráfico tem `role="img"` com resumo escrito** e uma lista de valores.
+  Nenhum valor mora só no desenho.
+- **Uma série, uma cor.** Colorir cada barra de um tom diferente gastaria o
+  único canal livre repetindo o que o comprimento já diz.
+
+### Dois bugs que os testes pegaram
+
+1. **O teste de integração apagava os dados do seed.** Ele limpava "todas as
+   notas desta loja" usando o CNPJ da fixture, que é o mesmo do Supermercado
+   Vila Nova do seed — levava junto as 15 notas de setembro da Camila. A
+   limpeza passou a ser por usuário, com cascade.
+2. **Ler uma nota não renomeia a loja.** A nota traz a razão social em
+   maiúsculas; sobrescrever o nome curado pioraria a tela a cada leitura.

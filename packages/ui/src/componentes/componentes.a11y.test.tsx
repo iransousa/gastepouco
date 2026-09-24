@@ -9,6 +9,8 @@ import { Button } from './Button.js';
 import { Card } from './Card.js';
 import { Chip } from './Chip.js';
 import { ConfettiBurst } from './ConfettiBurst.js';
+import { DonutChart } from './DonutChart.js';
+import { WeeklyBars } from './WeeklyBars.js';
 import { Icon } from './Icon.js';
 import { IconButton } from './IconButton.js';
 import { LevelRing } from './LevelRing.js';
@@ -296,5 +298,79 @@ describe('ConfettiBurst', () => {
   it('não tem violação de axe', async () => {
     const { container } = render(<ConfettiBurst />);
     expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+const REAIS = (centavos: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(centavos / 100);
+
+const CATEGORIAS = [
+  { id: 'mercearia', label: 'Mercearia', valor: 53953 },
+  { id: 'bebidas', label: 'Bebidas', valor: 23123 },
+  { id: 'hortifruti', label: 'Hortifrúti', valor: 19269 },
+  { id: 'limpeza', label: 'Limpeza', valor: 17984 },
+  { id: 'higiene', label: 'Higiene', valor: 14131 },
+];
+
+const SEMANAS = [
+  { label: 'Sem 1', valor: 41230 },
+  { label: 'Sem 2', valor: 28940 },
+  { label: 'Sem 3', valor: 33180 },
+  { label: 'Sem 4', valor: 25110 },
+];
+
+describe('DonutChart', () => {
+  it('não tem violação de axe', async () => {
+    const { container } = render(<DonutChart fatias={CATEGORIAS} formatarValor={REAIS} />);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('dá ao leitor de tela o mesmo que o desenho mostra', () => {
+    render(<DonutChart fatias={CATEGORIAS} formatarValor={REAIS} />);
+    const grafico = screen.getByRole('img');
+    // Nome e valor de cada fatia, não só "gráfico de pizza".
+    expect(grafico).toHaveAccessibleName(/Mercearia/);
+    expect(grafico).toHaveAccessibleName(/42%/);
+  });
+
+  it('põe nome e valor escritos na legenda, sem depender de cor', () => {
+    render(<DonutChart fatias={CATEGORIAS} formatarValor={REAIS} />);
+
+    // O nome aparece na legenda e, para a maior fatia, também no miolo — por
+    // isso getAllByText: as duas ocorrências são o comportamento certo.
+    for (const categoria of CATEGORIAS) {
+      expect(screen.getAllByText(categoria.label).length).toBeGreaterThan(0);
+    }
+    expect(screen.getAllByText(/539,53/).length).toBeGreaterThan(0);
+  });
+
+  it('diz que não há dados em vez de desenhar uma rosca vazia', () => {
+    render(<DonutChart fatias={[]} formatarValor={REAIS} />);
+    expect(screen.getByText(/Ainda não há gastos/)).toBeInTheDocument();
+  });
+});
+
+describe('WeeklyBars', () => {
+  it('não tem violação de axe', async () => {
+    const { container } = render(
+      <WeeklyBars barras={SEMANAS} formatarValor={REAIS} titulo="Gasto por semana" />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('resume a série e aponta a semana que mais pesou', () => {
+    render(<WeeklyBars barras={SEMANAS} formatarValor={REAIS} titulo="Gasto por semana" />);
+    const grafico = screen.getByRole('img');
+    expect(grafico).toHaveAccessibleName(/Gasto por semana/);
+    expect(grafico).toHaveAccessibleName(/Semana de maior gasto: Sem 1/);
+  });
+
+  it('todo valor é alcançável em texto, não só no desenho', () => {
+    render(<WeeklyBars barras={SEMANAS} formatarValor={REAIS} titulo="Gasto por semana" />);
+
+    // Cada valor aparece duas vezes de propósito: no resumo do leitor de tela
+    // e na lista visível. Nenhum valor mora só no desenho.
+    expect(screen.getAllByText(/412,30/).length).toBe(2);
+    expect(screen.getAllByText(/251,10/).length).toBe(2);
   });
 });

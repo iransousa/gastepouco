@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { ContaModule } from './modules/conta/conta.module.js';
 import { DevModule } from './modules/dev/dev.module.js';
 import { NotasModule } from './modules/notas/notas.module.js';
+import { GastosModule } from './modules/gastos/gastos.module.js';
 import { BullModule } from '@nestjs/bullmq';
 import { configuracao } from './comum/configuracao.js';
 
@@ -38,6 +39,7 @@ import { configuracao } from './comum/configuracao.js';
     AuthModule,
     ContaModule,
     NotasModule,
+    GastosModule,
     // Atalhos de teste. Fora de produção, e o próprio controller confere de novo.
     ...(configuracao.ehProducao ? [] : [DevModule]),
   ],

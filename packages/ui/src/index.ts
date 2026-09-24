@@ -50,6 +50,16 @@ export {
   type ConfettiBurstProps,
 } from './componentes/ConfettiBurst.js';
 export {
+  DonutChart,
+  type DonutChartProps,
+  type FatiaDoDonut,
+} from './componentes/DonutChart.js';
+export {
+  WeeklyBars,
+  type WeeklyBarsProps,
+  type BarraSemanal,
+} from './componentes/WeeklyBars.js';
+export {
   BottomNav,
   ITENS_PADRAO,
   type BottomNavItem,

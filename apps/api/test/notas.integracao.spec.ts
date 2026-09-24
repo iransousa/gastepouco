@@ -100,10 +100,14 @@ describe('leitura de nota (integração)', () => {
   });
 
   afterAll(async () => {
-    // Ordem importa: a observação de preço aponta para a loja, e ela só some
-    // junto com a nota. Apagar as notas de teste primeiro libera a loja.
-    await prisma.receipt.deleteMany({ where: { store: { cnpj: '08376451000129' } } });
-    await prisma.store.deleteMany({ where: { cnpj: '08376451000129' } });
+    // Nada de apagar por loja aqui.
+    //
+    // A fixture usa o CNPJ do Supermercado Vila Nova, que é o mesmo do seed —
+    // limpar "todas as notas desta loja" levava junto as 15 notas de setembro
+    // da Camila e quebrava os testes de gastos. A limpeza certa é por usuário:
+    // o `afterEach` apaga os usuários de teste, e o cascade leva notas, itens e
+    // observações de preço. A linha da loja pode ficar; ela é a mesma que o
+    // seed cria.
     await prisma.$disconnect();
   });
 
@@ -125,7 +129,12 @@ describe('leitura de nota (integração)', () => {
     expect(nota.status).toBe('DONE');
     expect(nota.totalCents).toBe(21089);
     expect(nota.items).toHaveLength(6);
-    expect(nota.store?.name).toBe('SUPERMERCADO VILA NOVA LTDA');
+
+    // A identidade da loja é o CNPJ, não o nome. Loja que já existe mantém o
+    // nome que tem: a nota traz a razão social em maiúsculas
+    // ("SUPERMERCADO VILA NOVA LTDA") e sobrescrever o nome curado
+    // ("Supermercado Vila Nova") pioraria a tela a cada leitura.
+    expect(nota.store?.cnpj).toBe('08376451000129');
     expect(nota.store?.uf).toBe('DF');
   });
 
