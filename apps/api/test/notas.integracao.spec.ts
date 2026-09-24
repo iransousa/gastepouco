@@ -2,9 +2,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Test } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
+import { apagarUsuarioDeTeste } from './limpeza.js';
 import { PONTOS, calcularDigitoVerificador } from '@gastemenos/shared';
 import { PrismaService } from '../src/prisma/prisma.service.js';
 import { PontosService } from '../src/modules/jogo/pontos.service.js';
+import { SequenciaService } from '../src/modules/jogo/sequencia.service.js';
+import { AmigosService } from '../src/modules/jogo/amigos.service.js';
+import { SelosService } from '../src/modules/jogo/selos.service.js';
 import { NotasService } from '../src/modules/notas/notas.service.js';
 import { ProdutosService } from '../src/modules/notas/produtos.service.js';
 import { RegistroDeAdaptadores } from '../src/modules/notas/adaptadores/registro.js';
@@ -61,6 +65,11 @@ describe('leitura de nota (integração)', () => {
         NotasService,
         ProdutosService,
         PontosService,
+        // A leitura de nota agora credita a semana, premia quem convidou e
+        // confere os selos — tudo numa passada só.
+        SequenciaService,
+        AmigosService,
+        SelosService,
         RegistroDeAdaptadores,
         AdaptadorDoDf,
         { provide: PrismaService, useValue: prisma },
@@ -96,7 +105,7 @@ describe('leitura de nota (integração)', () => {
   });
 
   afterEach(async () => {
-    await prisma.user.deleteMany({ where: { id: userId } });
+    await apagarUsuarioDeTeste(prisma, userId);
   });
 
   afterAll(async () => {
@@ -138,10 +147,13 @@ describe('leitura de nota (integração)', () => {
     expect(nota.store?.uf).toBe('DF');
   });
 
-  it('credita 60 pela nota mais 20 pelo mercado novo', async () => {
+  it('credita a nota, o mercado novo e a semana', async () => {
     await lerAFixture();
 
-    expect(await pontos.total(userId)).toBe(PONTOS.NOTA_LIDA + PONTOS.MERCADO_NOVO);
+    // 60 pela nota + 20 pelo mercado novo + 40 pela semana com nota.
+    expect(await pontos.total(userId)).toBe(
+      PONTOS.NOTA_LIDA + PONTOS.MERCADO_NOVO + PONTOS.SEMANA_COM_NOTA,
+    );
   });
 
   it('não repete o bônus de mercado novo na segunda compra na mesma loja', async () => {
@@ -153,8 +165,10 @@ describe('leitura de nota (integração)', () => {
     const lida = new AdaptadorDoDf().interpretar(fixture('nota-sintetica.html'), outraChave);
     await notas.concluir(id, lida);
 
-    // 60 + 20 da primeira, mais só 60 da segunda.
-    expect(await pontos.total(userId)).toBe(PONTOS.NOTA_LIDA * 2 + PONTOS.MERCADO_NOVO);
+    // A segunda nota é da mesma loja e da mesma semana: vale só os 60 dela.
+    expect(await pontos.total(userId)).toBe(
+      PONTOS.NOTA_LIDA * 2 + PONTOS.MERCADO_NOVO + PONTOS.SEMANA_COM_NOTA,
+    );
   });
 
   it('recusa a mesma chave na segunda vez', async () => {
@@ -263,7 +277,7 @@ describe('leitura de nota (integração)', () => {
     const gravada = await prisma.receipt.findUniqueOrThrow({ where: { id } });
     expect(gravada.status).toBe('DONE');
     expect(gravada.totalCents).toBe(21089);
-    // ...mas não vale pontos.
+    // ...mas não vale ponto nenhum, nem o da semana.
     expect(await pontos.total(userId)).toBe(0);
   });
 });

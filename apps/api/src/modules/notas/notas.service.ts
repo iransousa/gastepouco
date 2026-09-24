@@ -13,6 +13,9 @@ import {
 import { configuracao } from '../../comum/configuracao.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { PontosService, type SubidaDeNivel } from '../jogo/pontos.service.js';
+import { SequenciaService } from '../jogo/sequencia.service.js';
+import { AmigosService } from '../jogo/amigos.service.js';
+import { SelosService } from '../jogo/selos.service.js';
 import { ProdutosService } from './produtos.service.js';
 import { RegistroDeAdaptadores } from './adaptadores/registro.js';
 import { ErroDeLeitura, type NotaLida } from './adaptadores/adaptador.js';
@@ -26,6 +29,7 @@ export interface ResultadoDaLeitura {
   status: string;
   pointsAwarded?: number;
   levelUp?: SubidaDeNivel | null;
+  newBadges?: Array<{ id: string; name: string }>;
   savingsCents?: number;
   /** Frase para "Ler em voz alta" (docs/06-NFCE-LEITURA.md). */
   speech?: string;
@@ -40,6 +44,9 @@ export class NotasService {
     private readonly pontos: PontosService,
     private readonly produtos: ProdutosService,
     private readonly adaptadores: RegistroDeAdaptadores,
+    private readonly sequencia: SequenciaService,
+    private readonly amigos: AmigosService,
+    private readonly selos: SelosService,
   ) {}
 
   /**
@@ -232,17 +239,30 @@ export class NotasService {
         subiuDeNivel ??= bonus.levelUp;
       }
 
+      // Semana com nota: 40 pontos, uma vez por semana. O refId é a semana,
+      // então ler cinco notas na mesma semana credita uma vez só.
+      const semana = await this.sequencia.creditarSemana(nota.userId, observadoEm);
+      if (semana) pontosCreditados += PONTOS.SEMANA_COM_NOTA;
+
       await this.prisma.receipt.update({
         where: { id: notaId },
         data: { pointsAwarded: pontosCreditados },
       });
     }
 
+    // Quem convidou ganha quando o convidado lê a **primeira** nota — não no
+    // cadastro, para o convite não virar fábrica de conta vazia.
+    await this.amigos.premiarQuemConvidou(nota.userId);
+
+    // Selos novos entram na resposta: é o que a tela NotaLida comemora.
+    const selosNovos = await this.selos.conferirEConceder(nota.userId);
+
     return {
       id: notaId,
       status: 'DONE',
       pointsAwarded: pontosCreditados,
       levelUp: subiuDeNivel,
+      newBadges: selosNovos.map((selo) => ({ id: selo.id, name: selo.name })),
       savingsCents: economiaEmCentavos,
       speech: this.frasePara(lida, pontosCreditados),
     };

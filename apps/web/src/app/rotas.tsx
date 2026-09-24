@@ -18,6 +18,9 @@ import { Gastos } from '../rotas/gastos/Gastos.js';
 import { Precos } from '../rotas/precos/Precos.js';
 import { Lista } from '../rotas/lista/Lista.js';
 import { Ofertas } from '../rotas/ofertas/Ofertas.js';
+import { Ranking } from '../rotas/ranking/Ranking.js';
+import { Conquistas } from '../rotas/conquistas/Conquistas.js';
+import { Compartilhar } from '../rotas/compartilhar/Compartilhar.js';
 
 /**
  * Mapa de rotas (docs/05-TELAS-E-ROTAS.md). Os caminhos estão em português
@@ -108,6 +111,30 @@ export const rotas: RouteObject[] = [
     element: (
       <ExigeSessao>
         <Ofertas />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/ranking',
+    element: (
+      <ExigeSessao>
+        <Ranking />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/conquistas',
+    element: (
+      <ExigeSessao>
+        <Conquistas />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/compartilhar',
+    element: (
+      <ExigeSessao>
+        <Compartilhar />
       </ExigeSessao>
     ),
   },

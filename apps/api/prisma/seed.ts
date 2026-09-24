@@ -407,6 +407,47 @@ async function main(): Promise<void> {
     // Par ordenado A<B, como manda o modelo.
     const [a, b] = [camila.id, criado.id].sort();
     await prisma.friendship.create({ data: { userAId: a!, userBId: b! } });
+
+    // Notas e pontos de setembro do amigo.
+    //
+    // O ranking é **calculado** a partir destes dados, não plantado numa
+    // tabela de posições: é a única forma de o teste provar que a agregação
+    // funciona, e não que alguém digitou o pódio certo.
+    const economiaPorNota = Math.floor(amigo.economiaCentavos / amigo.compras);
+    const sobra = amigo.economiaCentavos - economiaPorNota * amigo.compras;
+
+    for (let i = 0; i < amigo.compras; i++) {
+      const loja = LOJAS[i % LOJAS.length]!;
+      const emitidaEm = data(2026, 9, ((i * 2) % 28) + 1);
+
+      await prisma.receipt.create({
+        data: {
+          accessKey: chaveDeAcesso(loja.cnpj, emitidaEm),
+          userId: criado.id,
+          storeId: lojaPorCnpj.get(loja.cnpj)!.id,
+          status: 'DONE',
+          source: 'qr',
+          issuedAt: emitidaEm,
+          totalCents: 8_000 + i * 350,
+          // A sobra da divisão vai na primeira nota, para a soma fechar exata.
+          savingsCents: economiaPorNota + (i === 0 ? sobra : 0),
+          pointsAwarded: PONTOS.NOTA_LIDA,
+          processedAt: emitidaEm,
+        },
+      });
+    }
+
+    // Pontos do mês, num lançamento só: o que o ranking soma é o total do
+    // período, e detalhar 13 créditos não mudaria o resultado.
+    await prisma.pointsLedger.create({
+      data: {
+        userId: criado.id,
+        amount: amigo.pontosNoMes,
+        reason: 'RECEIPT',
+        refId: `setembro-${criado.id}`,
+        createdAt: data(2026, 9, 15),
+      },
+    });
   }
 
   // --- notas de setembro, com os itens exatos das telas
@@ -427,8 +468,15 @@ async function main(): Promise<void> {
         issuedAt: emitidaEm,
         totalCents: total,
         paymentMethod: i % 3 === 0 ? 'PIX' : i % 3 === 1 ? 'CREDITO' : 'DEBITO',
-        // A economia total do mês é R$ 138,20; distribuída entre as notas.
-        savingsCents: Math.round(ECONOMIA_DE_SETEMBRO / DIAS_DAS_NOTAS.length),
+        // A economia total do mês é R$ 138,20, distribuída entre as notas.
+        // A sobra da divisão vai na primeira: dividir 13820 por 15 e arredondar
+        // perderia 5 centavos, e o ranking mostraria R$ 138,15.
+        savingsCents:
+          Math.floor(ECONOMIA_DE_SETEMBRO / DIAS_DAS_NOTAS.length) +
+          (i === 0
+            ? ECONOMIA_DE_SETEMBRO -
+              Math.floor(ECONOMIA_DE_SETEMBRO / DIAS_DAS_NOTAS.length) * DIAS_DAS_NOTAS.length
+            : 0),
         pointsEligible: true,
         pointsAwarded: PONTOS.NOTA_LIDA,
         processedAt: emitidaEm,
@@ -757,6 +805,45 @@ async function main(): Promise<void> {
   conferir(
     pontos._sum.amount === pontosTotais,
     `pontos deveriam somar ${pontosTotais}, somaram ${pontos._sum.amount}`,
+  );
+
+  for (const amigo of AMIGOS) {
+    const dele = amigos.find((a) => a.nome === amigo.nome)!;
+
+    const notas = await prisma.receipt.count({
+      where: {
+        userId: dele.id,
+        status: 'DONE',
+        issuedAt: { gte: data(2026, 9, 1, 0), lt: data(2026, 10, 1, 0) },
+      },
+    });
+    const economia = await prisma.receipt.aggregate({
+      where: {
+        userId: dele.id,
+        status: 'DONE',
+        issuedAt: { gte: data(2026, 9, 1, 0), lt: data(2026, 10, 1, 0) },
+      },
+      _sum: { savingsCents: true },
+    });
+
+    conferir(notas === amigo.compras, `${amigo.nome} deveria ter ${amigo.compras} notas, tem ${notas}`);
+    conferir(
+      economia._sum.savingsCents === amigo.economiaCentavos,
+      `${amigo.nome} deveria economizar ${amigo.economiaCentavos}, economizou ${economia._sum.savingsCents}`,
+    );
+  }
+
+  const economiaDaCamila = await prisma.receipt.aggregate({
+    where: {
+      userId: camila.id,
+      status: 'DONE',
+      issuedAt: { gte: data(2026, 9, 1, 0), lt: data(2026, 10, 1, 0) },
+    },
+    _sum: { savingsCents: true },
+  });
+  conferir(
+    economiaDaCamila._sum.savingsCents === ECONOMIA_DE_SETEMBRO,
+    `a economia da Camila deveria somar ${ECONOMIA_DE_SETEMBRO}, somou ${economiaDaCamila._sum.savingsCents}`,
   );
 
   const somaDaLista = await prisma.shoppingListItem.aggregate({

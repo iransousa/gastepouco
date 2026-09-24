@@ -10,7 +10,7 @@ Estado de cada fase de `11-ROADMAP-E-PROMPTS.md`. Atualize ao concluir uma fase.
 | 3 | Ler nota fiscal | 🟡 **PARCIAL** — tudo implementado e testado; falta validar contra uma nota real do DF |
 | 4 | Início, gastos e detalhe da nota | ✅ **EXECUTADO** |
 | 5 | Preços da região, lista e ofertas | ✅ **EXECUTADO** |
-| 6 | Jogo: níveis, selos, ranking, compartilhar | ⬜ PLANEJADO |
+| 6 | Jogo: níveis, selos, ranking, compartilhar | ✅ **EXECUTADO** |
 | 7 | Minha conta, notificações e ajuda | ⬜ PLANEJADO |
 | 8 | Polimento, acessibilidade e lançamento | ⬜ PLANEJADO |
 | 9 | Módulo Solana | ⬜ PLANEJADO |
@@ -301,3 +301,58 @@ de 5 caracteres — nunca o CEP, nunca a coordenada da loja.
 - **O gráfico de histórico tem uma série só.** O que a pessoa pagou entra como
   linha de referência, não como segunda série: duas escalas no mesmo gráfico é
   o erro clássico de eixo duplo.
+
+
+## Fase 6 — executado
+
+Ranking mensal (amigos e região × 3 categorias), 9 selos com progresso,
+sequência semanal, convites, job de fechamento do mês, e as telas Ranking,
+Conquistas e Compartilhar. 18 testes de aceite; 78 na API no total.
+
+**O ranking é calculado, não plantado.** O seed dá notas e pontos de verdade
+aos cinco amigos, e o teste confere a ordem e os valores contra
+`Ranking.dc.html` nas três categorias. Fosse uma tabela de posições fixa, o
+teste provaria só que alguém digitou o pódio certo.
+
+### ⚠️ Um padrão perigoso, encontrado do pior jeito
+
+O banco de desenvolvimento foi **apagado por completo** durante esta fase. A
+causa:
+
+```ts
+afterEach(() => prisma.user.deleteMany({ where: { id: userId } }))
+```
+
+O `beforeAll` falhou por um erro de injeção, então o `beforeEach` nunca rodou e
+`userId` ficou `undefined`. **O Prisma trata `undefined` como "filtro não
+informado"** — a limpeza virou "apague todos os usuários" e levou o seed junto.
+
+Num banco de teste isso custou um `db:seed`. Contra staging, ou contra um banco
+que alguém apontou errado no `.env`, teria custado os dados de todo mundo.
+
+A correção não é "tomar cuidado": toda remoção em teste passa agora por
+`test/limpeza.ts`, que ignora id vazio. O incidente está documentado lá, no
+arquivo, para quem for mexer entender por que a indireção existe.
+
+### Decisões
+
+- **O progresso dos selos é recalculado, não incrementado.** Um contador que só
+  sobe mentiria quando a pessoa exclui uma nota: ela veria 15/15 no "Carrinho
+  Esperto" com 14 notas no histórico. Selo já conquistado não se perde —
+  `unlockedAt` fica gravado.
+- **A semana é de segunda a domingo no fuso de Brasília.** 22h de domingo em
+  Brasília é segunda em UTC; sem o ajuste, a nota cairia na semana seguinte e a
+  pessoa perderia a sequência por um detalhe invisível para ela. Há teste
+  para isso.
+- **Quem esconde o nome mantém a posição.** Vira "Economizador anônimo" no
+  lugar que conquistou; esconder o nome não pode custar o pódio.
+- **Conta pausada some do ranking**, em qualquer visão: pausar é sair de vista,
+  não só parar de receber notificação.
+- **O ponto do convite só entra quando o convidado lê a primeira nota.**
+  Creditar no cadastro transformaria convite em fábrica de conta vazia.
+- **O ranking ao vivo é calculado a cada pedido**; o snapshot serve para
+  congelar o mês. Um pódio que muda depois de anunciado não é pódio.
+- **O cartão é desenhado em canvas a 1080×1920**, não convertido de HTML:
+  `html2canvas` erra fonte e sombra e pesa ~200 KB; aqui são ~60 linhas e o
+  resultado é exato. As cores saem dos tokens lidos do `<html>`, então o cartão
+  acompanha o tema sem uma segunda tabela de cores.
