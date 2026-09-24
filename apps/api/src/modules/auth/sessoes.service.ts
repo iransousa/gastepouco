@@ -20,11 +20,13 @@ export interface ParDeTokens {
  *
  * - Guardar o refresh em claro significaria que um vazamento do banco entrega
  *   as sessões de todo mundo. O hash não serve para entrar.
- * - Rotação permite **detectar reutilização**: se um refresh já queimado
- *   aparecer de novo, ou é um atacante com uma cópia antiga, ou o dono
- *   perdendo corrida com ele. Nos dois casos a resposta certa é a mesma —
- *   revogar a família inteira de sessões daquela pessoa e obrigar login novo
- *   (docs/09-SEGURANCA-LGPD.md).
+ * - Rotação permite **detectar reutilização**: um refresh já queimado que
+ *   reaparece enquanto a sessão que o substituiu está em uso significa duas
+ *   partes com token na mão. Aí a resposta é revogar a família inteira de
+ *   sessões daquela pessoa e obrigar login novo (docs/09-SEGURANCA-LGPD.md).
+ *
+ * Com uma exceção, descrita em `rotacionar`: se a sessão sucessora nunca foi
+ * usada, o token novo não chegou ao cliente e quem voltou é o dono.
  */
 @Injectable()
 export class SessoesService {
@@ -70,10 +72,26 @@ export class SessoesService {
     if (!sessao) return null;
 
     if (sessao.revokedAt) {
-      // Token já queimado reaparecendo: alguém está com uma cópia.
-      this.logger.warn('Refresh reutilizado; revogando todas as sessões do usuário.');
-      await this.revogarTodas(sessao.userId);
-      return null;
+      const orfa = await this.sucessoraNaoUsada(sessao.successorId);
+
+      if (!orfa) {
+        // Token já queimado reaparecendo, e a sessão que o substituiu já foi
+        // usada: há duas partes com token na mão.
+        this.logger.warn('Refresh reutilizado; revogando todas as sessões do usuário.');
+        await this.revogarTodas(sessao.userId);
+        return null;
+      }
+
+      // O cliente nunca chegou a receber o token novo — a navegação cancelou a
+      // renovação no meio, ou duas abas renovaram juntas e só uma resposta
+      // chegou. Quem volta com o token antigo aqui é o dono, não um atacante:
+      // reemitimos a partir da sessão órfã em vez de derrubar tudo.
+      //
+      // Isso não afrouxa a detecção de reutilização. Ela existe para o caso do
+      // token roubado usado **em paralelo** com o legítimo — e aí a sessão
+      // sucessora está em uso, que é exatamente o ramo de cima.
+      this.logger.log('Renovação perdida; reemitindo a partir da sessão órfã.');
+      return this.emitirNoLugarDe(orfa.id, sessao.user.id, sessao.user.email);
     }
 
     const venceuEm = emDias(-configuracao.jwt.validadeDoRefreshEmDias);
@@ -91,29 +109,55 @@ export class SessoesService {
       this.logger.log('Sessão renovada para conta com exclusão agendada.');
     }
 
+    return this.emitirNoLugarDe(sessao.id, sessao.user.id, sessao.user.email);
+  }
+
+  /**
+   * Sessão que substituiu outra e nunca foi usada — sinal de que a resposta da
+   * renovação se perdeu no caminho. Uma sessão sucessora já revogada quer
+   * dizer que ela **foi** usada, e aí não há renovação perdida nenhuma.
+   */
+  private async sucessoraNaoUsada(successorId: string | null) {
+    if (!successorId) return null;
+
+    return this.prisma.session.findFirst({
+      where: { id: successorId, revokedAt: null },
+      select: { id: true },
+    });
+  }
+
+  /** Queima a sessão e cria a substituta, ligando uma à outra. */
+  private async emitirNoLugarDe(
+    sessionId: string,
+    userId: string,
+    email: string,
+  ): Promise<ParDeTokens> {
+    const anterior = await this.prisma.session.findUniqueOrThrow({
+      where: { id: sessionId },
+      select: { deviceLabel: true, city: true },
+    });
+
     const novoRefresh = randomBytes(48).toString('base64url');
 
-    // Queima o antigo e cria o novo na mesma transação: sem janela em que os
-    // dois valem ou nenhum vale.
-    await this.prisma.$transaction([
-      this.prisma.session.update({
-        where: { id: sessao.id },
-        data: { revokedAt: new Date() },
-      }),
-      this.prisma.session.create({
+    // Tudo na mesma transação: sem janela em que os dois valem ou nenhum vale.
+    await this.prisma.$transaction(async (tx) => {
+      const nova = await tx.session.create({
         data: {
-          userId: sessao.userId,
+          userId,
           refreshHash: this.hash(novoRefresh),
-          deviceLabel: sessao.deviceLabel,
-          city: sessao.city,
+          deviceLabel: anterior.deviceLabel,
+          city: anterior.city,
         },
-      }),
-    ]);
+        select: { id: true },
+      });
 
-    return {
-      access: await this.assinarAcesso(sessao.user.id, sessao.user.email),
-      refresh: novoRefresh,
-    };
+      await tx.session.update({
+        where: { id: sessionId },
+        data: { revokedAt: new Date(), successorId: nova.id },
+      });
+    });
+
+    return { access: await this.assinarAcesso(userId, email), refresh: novoRefresh };
   }
 
   async revogar(refresh: string): Promise<void> {

@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import { ExigeSessao } from './sessao.js';
@@ -21,6 +22,14 @@ import { Ofertas } from '../rotas/ofertas/Ofertas.js';
 import { Ranking } from '../rotas/ranking/Ranking.js';
 import { Conquistas } from '../rotas/conquistas/Conquistas.js';
 import { Compartilhar } from '../rotas/compartilhar/Compartilhar.js';
+import { Perfil } from '../rotas/perfil/Perfil.js';
+import { Acessibilidade } from '../rotas/perfil/Acessibilidade.js';
+import { DadosPessoais } from '../rotas/perfil/DadosPessoais.js';
+import { AlterarSenha, Seguranca } from '../rotas/perfil/Seguranca.js';
+import { Notificacoes, Privacidade } from '../rotas/perfil/Privacidade.js';
+import { EncerrarConta, PausarConta } from '../rotas/perfil/EncerrarConta.js';
+import { CentralDeNotificacoes } from '../rotas/notificacoes/CentralDeNotificacoes.js';
+import { Ajuda } from '../rotas/ajuda/Ajuda.js';
 
 /**
  * Mapa de rotas (docs/05-TELAS-E-ROTAS.md). Os caminhos estão em português
@@ -29,6 +38,12 @@ import { Compartilhar } from '../rotas/compartilhar/Compartilhar.js';
  * Quem chega em `/` sem sessão começa pelas boas-vindas; `ExigeSessao` cuida do
  * resto e leva ao login guardando de onde veio.
  */
+
+/** Rota que só existe com sessão. */
+function comSessao(path: string, tela: ReactElement): RouteObject {
+  return { path, element: <ExigeSessao>{tela}</ExigeSessao> };
+}
+
 export const rotas: RouteObject[] = [
   { path: '/', element: <Navigate to="/boas-vindas/1" replace /> },
 
@@ -42,110 +57,32 @@ export const rotas: RouteObject[] = [
   { path: '/recuperar-senha/nova', element: <RecuperarSenha /> },
 
   // Com sessão.
-  {
-    path: '/perfil-de-consumo',
-    element: (
-      <ExigeSessao>
-        <PerfilDeConsumo />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/perfil-de-consumo/pronto',
-    element: (
-      <ExigeSessao>
-        <PerfilPronto />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/ler-nota',
-    element: (
-      <ExigeSessao>
-        <Escanear />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/notas/:id/resultado',
-    element: (
-      <ExigeSessao>
-        <NotaLida />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/notas/:id',
-    element: (
-      <ExigeSessao>
-        <DetalheNota />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/gastos',
-    element: (
-      <ExigeSessao>
-        <Gastos />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/produtos/:id/precos',
-    element: (
-      <ExigeSessao>
-        <Precos />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/lista',
-    element: (
-      <ExigeSessao>
-        <Lista />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/ofertas',
-    element: (
-      <ExigeSessao>
-        <Ofertas />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/ranking',
-    element: (
-      <ExigeSessao>
-        <Ranking />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/conquistas',
-    element: (
-      <ExigeSessao>
-        <Conquistas />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/compartilhar',
-    element: (
-      <ExigeSessao>
-        <Compartilhar />
-      </ExigeSessao>
-    ),
-  },
-  {
-    path: '/inicio',
-    element: (
-      <ExigeSessao>
-        <Inicio />
-      </ExigeSessao>
-    ),
-  },
+  comSessao('/perfil-de-consumo', <PerfilDeConsumo />),
+  comSessao('/perfil-de-consumo/pronto', <PerfilPronto />),
+  comSessao('/ler-nota', <Escanear />),
+  comSessao('/notas/:id/resultado', <NotaLida />),
+  comSessao('/notas/:id', <DetalheNota />),
+  comSessao('/gastos', <Gastos />),
+  comSessao('/produtos/:id/precos', <Precos />),
+  comSessao('/lista', <Lista />),
+  comSessao('/ofertas', <Ofertas />),
+  comSessao('/ranking', <Ranking />),
+  comSessao('/conquistas', <Conquistas />),
+  comSessao('/compartilhar', <Compartilhar />),
+  comSessao('/notificacoes', <CentralDeNotificacoes />),
+  comSessao('/ajuda', <Ajuda />),
+  comSessao('/inicio', <Inicio />),
+
+  // Perfil e ajustes.
+  comSessao('/perfil', <Perfil />),
+  comSessao('/perfil/dados', <DadosPessoais />),
+  comSessao('/perfil/seguranca', <Seguranca />),
+  comSessao('/perfil/seguranca/senha', <AlterarSenha />),
+  comSessao('/perfil/notificacoes', <Notificacoes />),
+  comSessao('/perfil/privacidade', <Privacidade />),
+  comSessao('/perfil/acessibilidade', <Acessibilidade />),
+  comSessao('/perfil/pausar', <PausarConta />),
+  comSessao('/perfil/encerrar', <EncerrarConta />),
 
   // Conferência do design system. `import.meta.env.DEV` some no build de
   // produção, então a rota não vai para o ar junto com o app.

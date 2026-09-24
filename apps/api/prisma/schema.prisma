@@ -124,6 +124,9 @@ model AuthAccount {
   @@unique([provider, providerAccountId])
 }
 
+/// `successorId` aponta para a sessao criada quando esta foi rotacionada. E o
+/// que distingue "o cliente nao chegou a receber o token novo" de "alguem esta
+/// com uma copia antiga" — ver SessoesService.rotacionar.
 model Session {
   id          String    @id @default(cuid())
   userId      String
@@ -133,6 +136,7 @@ model Session {
   city        String?
   lastSeenAt  DateTime  @default(now())
   revokedAt   DateTime?
+  successorId String?   @unique
   createdAt   DateTime  @default(now())
 }
 

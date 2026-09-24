@@ -26,6 +26,16 @@
 ## Segurança
 
 - Senhas com Argon2id; tokens de acesso de 15 min; refresh rotativo com detecção de reutilização (revoga a família).
+  - **Exceção da renovação perdida.** Um refresh já queimado que reaparece
+    **enquanto a sessão que o substituiu nunca foi usada** não é reutilização:
+    é o cliente que não chegou a receber o token novo — a navegação cancelou a
+    resposta no meio, ou duas abas renovaram juntas e só uma resposta chegou.
+    Nesse caso a API reemite a partir da sessão órfã, em vez de derrubar a
+    família. A detecção continua valendo para o caso que ela existe para pegar,
+    o token roubado usado **em paralelo** com o legítimo: aí a sessão sucessora
+    está em uso. Implementado em `SessoesService.rotacionar` (coluna
+    `Session.successorId`), com as duas direções fixadas em
+    `apps/api/test/sessoes.spec.ts`.
 - Cookies `httpOnly`, `Secure`, `SameSite=Lax`; CORS restrito ao domínio do web; CSP no web.
 - Rate limit (Nest Throttler + Redis) em login, cadastro, reenvio de código, leitura de nota (10 com pontos por dia) e busca.
 - Verificação em duas etapas opcional por SMS ou e-mail; aviso por e-mail em troca de senha, novo aparelho e pedido de exclusão.

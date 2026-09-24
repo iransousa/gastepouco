@@ -11,7 +11,7 @@ Estado de cada fase de `11-ROADMAP-E-PROMPTS.md`. Atualize ao concluir uma fase.
 | 4 | Início, gastos e detalhe da nota | ✅ **EXECUTADO** |
 | 5 | Preços da região, lista e ofertas | ✅ **EXECUTADO** |
 | 6 | Jogo: níveis, selos, ranking, compartilhar | ✅ **EXECUTADO** |
-| 7 | Minha conta, notificações e ajuda | ⬜ PLANEJADO |
+| 7 | Minha conta, notificações e ajuda | ✅ **EXECUTADO** |
 | 8 | Polimento, acessibilidade e lançamento | ⬜ PLANEJADO |
 | 9 | Módulo Solana | ⬜ PLANEJADO |
 
@@ -24,6 +24,7 @@ pnpm --filter @gastemenos/api db:migrate
 pnpm --filter @gastemenos/api db:seed
 pnpm dev                      # web :5173, api :3001 (Swagger em /docs)
 pnpm lint && pnpm typecheck && pnpm test
+RATE_LIMIT_TEST_FACTOR=20 pnpm dev     # a suíte e2e precisa da API com o fator
 pnpm --filter @gastemenos/web test:e2e
 ```
 
@@ -356,3 +357,57 @@ arquivo, para quem for mexer entender por que a indireção existe.
   `html2canvas` erra fonte e sombra e pesa ~200 KB; aqui são ~60 linhas e o
   resultado é exato. As cores saem dos tokens lidos do `<html>`, então o cartão
   acompanha o tema sem uma segunda tabela de cores.
+
+
+## Fase 7 — executado
+
+Conta, sessões, preferências, pausa, exclusão agendada, exportação de dados,
+Web Push e horário de silêncio na API; as telas Perfil, Dados pessoais, Login e
+segurança, Alterar senha, Notificações, Privacidade e dados, Acessibilidade,
+Pausar conta, Encerrar conta, Central de notificações e Ajuda no web.
+
+21 testes de aceite da conta + 5 de sessão (104 na API no total) e um teste e2e
+que percorre as 11 telas com axe nas 3 combinações de tema, tamanho e largura —
+60 testes de ponta a ponta no total.
+
+### ⚠️ Um logout que ninguém pediu
+
+O e2e das telas de conta derrubava a sessão no meio do caminho, sempre no mesmo
+lugar: a terceira navegação. No log da API, uma linha só:
+
+```
+WARN [SessoesService] Refresh reutilizado; revogando todas as sessões do usuário.
+```
+
+Não era ataque nenhum. Cada carregamento de página renova a sessão; a navegação
+seguinte cancelou a resposta antes de o cookie novo ser gravado, o navegador
+voltou com o token antigo — e a detecção de reutilização fez o que estava
+escrito: revogou a família inteira. Em produção isso é a pessoa tocando num link
+durante a renovação, ou o app aberto em duas abas.
+
+A correção está em `SessoesService.rotacionar`: a sessão passa a apontar para a
+que a substituiu (`Session.successorId`). Um token queimado que reaparece
+**enquanto a sucessora nunca foi usada** é renovação perdida, e a API reemite a
+partir dela. Se a sucessora já foi usada, são duas partes com token na mão, e
+aí sim a família cai. `apps/api/test/sessoes.spec.ts` fixa as duas direções.
+
+Vale registrar por que isso não afrouxa a segurança: a detecção existe para o
+token roubado usado **em paralelo** com o legítimo — e é exatamente nesse caso
+que a sessão sucessora está em uso.
+
+### Decisões
+
+- **O agrupamento "Hoje / Esta semana" fica no web, não na API.** Só o
+  navegador conhece o fuso de quem está lendo: uma notificação das 23h em
+  Brasília é "hoje" para a pessoa e "amanhã" para o servidor em UTC.
+- **A busca da Ajuda atravessa os tópicos.** Quem digita "pausar" acha a
+  resposta que mora em "Conta e privacidade" sem precisar adivinhar a aba;
+  acento não conta ("precos" acha "preços").
+- **Nada de botão de chat sem atendimento.** A tela Ajuda abre e-mail, com o
+  horário escrito. Chat entra quando houver equipe de plantão.
+- **Pausar aparece dentro de Encerrar conta, antes do formulário.** Quem só
+  quer sumir por um tempo não precisa apagar três anos de histórico.
+- **Confirmação por palavra, em maiúsculas.** `ENCERRAR` digitado à mão é o que
+  separa a decisão do toque sem querer; minúscula não libera.
+- **O BOM do CSV virou `String.fromCharCode(0xfeff)`.** Como caractere literal
+  ele era invisível no fonte — e o ESLint, com razão, recusava.

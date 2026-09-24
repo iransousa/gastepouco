@@ -6,7 +6,7 @@ O schema completo está em `prisma/schema.prisma` (mova para `apps/api/prisma/` 
 | --- | --- | --- |
 | `User` | conta | `status` ACTIVE, PAUSED (com `pausedUntil`) ou PENDING_DELETION (com `deletionAt` = pedido + 30 dias); `rankingName` é o nome público; `cpfHash` guarda só hash com sal |
 | `AuthAccount` | formas de entrar | senha, Google, Apple; sempre pelo menos uma ativa |
-| `Session` | aparelhos conectados | refresh token com hash; "Sair" revoga |
+| `Session` | aparelhos conectados | refresh token com hash; `successorId` liga a sessão à que a substituiu (ver 09-SEGURANCA-LGPD.md); "Sair" revoga |
 | `ConsumptionProfile` | 5 perguntas do primeiro uso | define persona e orçamento sugerido |
 | `Preferences` | tema, texto, acessibilidade, notificações, privacidade | uma linha por usuário |
 | `Consent` | termos e consentimentos LGPD | histórico, nunca apagar enquanto a conta existir |
