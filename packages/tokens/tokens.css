@@ -19,6 +19,7 @@
   --offer-soft: #FFE4D6;
   --success: #0E4D3A;
   --danger: #9A3412;
+  --on-danger: #FFFFFF;
   --focus: #6B5BE0;
   --scrim: rgba(11, 21, 18, 0.62);
   --camera: #0B1512;
@@ -73,6 +74,7 @@
   --offer-soft: #3A1D10;
   --success: #A8D46B;
   --danger: #FF9A6E;
+  --on-danger: #14201A;
   --focus: #B3A8FF;
   --scrim: rgba(0, 0, 0, 0.7);
   --camera: #0B1512;
@@ -105,6 +107,7 @@
   --offer-soft: #FFE4D6;
   --success: #003D2B;
   --danger: #8F1D12;
+  --on-danger: #FFFFFF;
   --focus: #0047FF;
   --scrim: rgba(0, 0, 0, 0.8);
   --camera: #000000;
@@ -139,6 +142,7 @@
     --offer-soft: #3A1D10;
     --success: #A8D46B;
     --danger: #FF9A6E;
+    --on-danger: #14201A;
     --focus: #B3A8FF;
     --scrim: rgba(0, 0, 0, 0.7);
     --camera: #0B1512;

@@ -1,13 +1,15 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { Link, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { AppearanceProvider, ProvedorDeLink, type ComponenteDeLink } from '@gastemenos/ui';
 import { rotas } from './rotas.js';
 
 /**
  * Raiz do app: providers e roteador.
  *
- * As telas entram nas fases 2 a 7 (docs/11-ROADMAP-E-PROMPTS.md). O que existe
- * aqui é a casca: cache de dados, roteamento e, na fase 1, o AppearanceProvider
- * que aplica tema, tamanho de texto e movimento reduzido no <html>.
+ * O AppearanceProvider precisa envolver tudo porque escreve tema, tamanho de
+ * texto e movimento reduzido no `<html>` — e a preferência salva é aplicada
+ * antes do primeiro desenho, para a tela não piscar em claro antes de virar
+ * escura.
  */
 const cliente = new QueryClient({
   defaultOptions: {
@@ -28,10 +30,17 @@ const cliente = new QueryClient({
 
 const roteador = createBrowserRouter(rotas);
 
+/** Liga o `href` do design system ao React Router: navega sem recarregar. */
+const LinkDoRouter: ComponenteDeLink = ({ href, ...resto }) => <Link to={href} {...resto} />;
+
 export function App(): React.ReactElement {
   return (
-    <QueryClientProvider client={cliente}>
-      <RouterProvider router={roteador} />
-    </QueryClientProvider>
+    <AppearanceProvider>
+      <ProvedorDeLink link={LinkDoRouter}>
+        <QueryClientProvider client={cliente}>
+          <RouterProvider router={roteador} />
+        </QueryClientProvider>
+      </ProvedorDeLink>
+    </AppearanceProvider>
   );
 }

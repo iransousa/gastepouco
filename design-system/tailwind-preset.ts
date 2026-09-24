@@ -26,6 +26,7 @@ const preset: Partial<Config> = {
       "offer-soft": 'var(--offer-soft)',
       "success": 'var(--success)',
       "danger": 'var(--danger)',
+      "on-danger": 'var(--on-danger)',
       "focus": 'var(--focus)',
       "scrim": 'var(--scrim)',
       "camera": 'var(--camera)',

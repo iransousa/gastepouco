@@ -1,5 +1,7 @@
 /* Tokens gerados de design-system/tokens.json. Nada de cor solta daqui pra frente. */
 @import '@gastemenos/tokens/tokens.css';
+/* Estilos dos componentes do design system. */
+@import '@gastemenos/ui/estilos.css';
 
 @tailwind base;
 @tailwind components;

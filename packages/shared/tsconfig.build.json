@@ -5,10 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./dist",
     "rootDir": "./src",
-    "module": "CommonJS",
-    "moduleResolution": "node",
     "isolatedModules": false
   },
   "include": ["src/**/*.ts"],
