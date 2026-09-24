@@ -4,9 +4,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+/// `url` e a conexao do dia a dia; `directUrl` e usada por migrate e introspect.
+/// No Supabase as duas sao diferentes: a primeira aponta para o pooler em
+/// transaction mode (porta 6543), que nao aceita DDL nem prepared statements, e
+/// a segunda para o pooler em session mode (5432). Em desenvolvimento as duas
+/// apontam para o mesmo Postgres do Docker. Ver docs/13-SUPABASE.md.
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum AccountStatus {

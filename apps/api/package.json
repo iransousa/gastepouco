@@ -15,6 +15,7 @@
     "db:generate": "dotenv -e ../../.env -- prisma generate",
     "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "db:blindar": "dotenv -e ../../.env -- prisma db execute --file prisma/sql/blindar-schema.sql --schema prisma/schema.prisma",
     "db:seed": "dotenv -e ../../.env -- prisma db seed"
   },
   "prisma": {

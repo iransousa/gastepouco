@@ -7,6 +7,7 @@ import { PrismaService } from '../src/prisma/prisma.service.js';
 import { EmailService } from '../src/modules/email/email.service.js';
 import { SessoesService } from '../src/modules/auth/sessoes.service.js';
 import { PrivacidadeService } from '../src/modules/privacidade/privacidade.service.js';
+import { ArmazenamentoService } from '../src/modules/armazenamento/armazenamento.service.js';
 import { PreferenciasService } from '../src/modules/conta/preferencias.service.js';
 import { DadosPessoaisService } from '../src/modules/conta/dados-pessoais.service.js';
 import { RankingService } from '../src/modules/jogo/ranking.service.js';
@@ -32,6 +33,7 @@ describe('conta, privacidade e notificações', () => {
     const modulo = await Test.createTestingModule({
       providers: [
         PrivacidadeService,
+        ArmazenamentoService,
         PreferenciasService,
         DadosPessoaisService,
         NotificacoesService,

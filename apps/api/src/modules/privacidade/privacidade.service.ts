@@ -1,12 +1,11 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import JSZip from 'jszip';
-import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { erro } from '@gastemenos/shared';
 import { emDias } from '../../comum/tempo.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { EmailService } from '../email/email.service.js';
 import { SessoesService } from '../auth/sessoes.service.js';
+import { ArmazenamentoService } from '../armazenamento/armazenamento.service.js';
 
 /**
  * Direitos do titular (LGPD, art. 18) — exportar e eliminar.
@@ -27,7 +26,6 @@ import { SessoesService } from '../auth/sessoes.service.js';
 /** U+FEFF, escrito por código: caractere invisível no meio do fonte some. */
 const BOM = String.fromCharCode(0xfeff);
 
-const PASTA_DE_EXPORTACOES = process.env.EXPORT_DIR ?? './exportacoes';
 const DIAS_ATE_A_EXCLUSAO = 30;
 const DIAS_DE_VALIDADE_DO_ARQUIVO = 7;
 
@@ -39,6 +37,7 @@ export class PrivacidadeService {
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
     private readonly sessoes: SessoesService,
+    private readonly armazenamento: ArmazenamentoService,
   ) {}
 
   // ------------------------------------------------------------- exportar
@@ -203,9 +202,8 @@ export class PrivacidadeService {
 
     const conteudo = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
 
-    await mkdir(PASTA_DE_EXPORTACOES, { recursive: true });
     const nomeDoArquivo = `${exportId}.zip`;
-    await writeFile(join(PASTA_DE_EXPORTACOES, nomeDoArquivo), conteudo);
+    await this.armazenamento.guardar(nomeDoArquivo, conteudo);
 
     await this.prisma.dataExport.update({
       where: { id: exportId },
@@ -273,7 +271,7 @@ export class PrivacidadeService {
       );
     }
 
-    return readFile(join(PASTA_DE_EXPORTACOES, registro.fileKey));
+    return this.armazenamento.ler(registro.fileKey);
   }
 
   // -------------------------------------------------------------- excluir
@@ -344,7 +342,7 @@ export class PrivacidadeService {
 
     for (const exportacao of vencidas) {
       if (exportacao.fileKey) {
-        await unlink(join(PASTA_DE_EXPORTACOES, exportacao.fileKey)).catch(() => undefined);
+        await this.armazenamento.apagar(exportacao.fileKey);
       }
       await this.prisma.dataExport.update({
         where: { id: exportacao.id },

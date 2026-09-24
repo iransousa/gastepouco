@@ -15,7 +15,13 @@ flowchart LR
   W --> PG
   CRON[Jobs agendados<br/>preços, ranking, LGPD] --> PG
   API -. fase Solana .-> OR[apps/oracle<br/>Anchor + x402]
+  API --> ST[(Storage<br/>ZIP da exportacao)]
 ```
+
+Em produção, `PostgreSQL` e `Storage` são o **Supabase**, usado só como banco
+gerenciado e armazenamento de arquivo: a API continua sendo o único cliente do
+banco, sem PostgREST e sem Supabase Auth. O Redis fica no servidor, porque o
+Supabase não tem. Ver `13-SUPABASE.md`.
 
 ## Estrutura do monorepo
 

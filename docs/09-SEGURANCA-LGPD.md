@@ -41,4 +41,6 @@
 - Verificação em duas etapas opcional por SMS ou e-mail; aviso por e-mail em troca de senha, novo aparelho e pedido de exclusão.
 - Google OAuth com PKCE e `state`; ligar conta Google a uma conta existente só com o mesmo e-mail verificado.
 - Logs sem dados pessoais (mascarar e-mail, nunca logar tokens, CPF ou HTML de nota).
-- Backups diários criptografados do Postgres, com retenção de 30 dias.
+- Backups diários criptografados do Postgres, com retenção de 30 dias — em produção, o PITR do Supabase (`docs/13-SUPABASE.md`).
+- O schema do banco fica fechado para as chaves públicas do Supabase: RLS ligada em toda tabela, sem policy, e privilégios revogados de `anon`/`authenticated` (`apps/api/prisma/sql/blindar-schema.sql`). A API conecta como dona das tabelas.
+- O ZIP de "Baixar meus dados" **nunca ganha URL pública nem assinada**: sai pelo endpoint autenticado, que lê o arquivo com a chave de serviço no servidor. Link assinado circula em conversa e vale para quem o receber.

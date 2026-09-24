@@ -81,4 +81,33 @@ export const configuracao = {
     de: process.env.MAIL_FROM ?? 'GasteMenos <nao-responda@gastemenos.com.br>',
     smtp: process.env.SMTP_URL ?? '',
   },
+
+  /**
+   * Onde ficam os arquivos que a API gera — hoje, o ZIP de "Baixar meus dados".
+   *
+   * Sem as credenciais do Supabase, disco local: é o que serve em
+   * desenvolvimento e nos testes. Com elas, Supabase Storage, porque o disco do
+   * container é efêmero e um deploy no meio do caminho apagaria o arquivo que a
+   * pessoa acabou de pedir (docs/13-SUPABASE.md).
+   */
+  armazenamento: {
+    // Tudo em getter: lido na hora do uso, não na hora do import. É o que
+    // permite o teste trocar o destino sem recarregar o módulo — e o que evita
+    // uma variável definida tarde demais passar despercebida.
+    get pasta(): string {
+      return process.env.EXPORT_DIR ?? './exportacoes';
+    },
+    get url(): string {
+      return process.env.SUPABASE_URL ?? '';
+    },
+    get chaveDeServico(): string {
+      return process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+    },
+    get balde(): string {
+      return process.env.SUPABASE_STORAGE_BUCKET ?? 'exportacoes';
+    },
+    get noSupabase(): boolean {
+      return Boolean(this.url && this.chaveDeServico);
+    },
+  },
 } as const;

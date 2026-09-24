@@ -411,3 +411,46 @@ que a sessão sucessora está em uso.
   separa a decisão do toque sem querer; minúscula não libera.
 - **O BOM do CSV virou `String.fromCharCode(0xfeff)`.** Como caractere literal
   ele era invisível no fonte — e o ESLint, com razão, recusava.
+
+
+## Banco de produção no Supabase — executado (código)
+
+Supabase entra **só como Postgres gerenciado e Storage**; a API continua sendo o
+único cliente do banco. O passo a passo, o porquê de cada decisão e o roteiro do
+primeiro deploy estão em `13-SUPABASE.md`. Falta apenas criar o projeto e
+implantar — isso depende de credencial, não de código.
+
+O que mudou no repositório:
+
+- `directUrl` no datasource do Prisma: no Supabase, o pooler de transação (6543)
+  não aceita DDL nem prepared statement, e migration precisa da porta 5432.
+- `ArmazenamentoService` com dois destinos — disco em desenvolvimento e teste,
+  Supabase Storage quando há credencial. O disco do container é efêmero: um
+  deploy entre o pedido e o download apagaria o ZIP de "Baixar meus dados".
+- `prisma/sql/blindar-schema.sql` (aplicado como migration): RLS ligada em toda
+  tabela, sem policy, e privilégios revogados de `anon`/`authenticated`.
+
+### Por que o schema precisa ser fechado à mão
+
+O Prisma cria as tabelas em `public`, e o Supabase publica `public` pela API
+PostgREST. A chave `anon` é pública por definição — vai no javascript de
+qualquer cliente. Sem tratar isso, **ela lê a base inteira**: é o mesmo furo do
+aplicativo anterior, chegando por outro caminho.
+
+Duas camadas, porque uma só não basta: RLS sem policy (ninguém passa) e
+privilégio revogado (inclusive o padrão para tabelas futuras). A API não sente
+nada: conecta como dona das tabelas, e dona não entra na RLS.
+
+### Decisões
+
+- **O ZIP nunca ganha URL pública nem assinada.** O download sai pelo endpoint
+  autenticado, que lê o arquivo com a chave de serviço no servidor. Link
+  assinado é portátil por natureza: circula em conversa, sobrevive à troca de
+  senha e vale para qualquer um que o receba — num arquivo com o histórico de
+  compras inteiro de uma pessoa, isso não serve.
+- **Testes e CI continuam no Postgres do Docker.** A suíte cria e apaga
+  usuários; o incidente do `deleteMany` na fase 6 é o motivo de nenhuma suíte
+  apontar para base compartilhada.
+- **Supabase Auth ficou de fora.** Login, sessões rotativas, consentimento
+  versionado e o mínimo de anonimato dos preços são regra testada em
+  `apps/api/test`; em policy SQL virariam regra sem teste.
