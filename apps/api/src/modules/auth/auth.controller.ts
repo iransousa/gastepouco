@@ -1,0 +1,184 @@
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import type { Request, Response } from 'express';
+import { erro } from '@gastemenos/shared';
+import { configuracao } from '../../comum/configuracao.js';
+import { UsuarioAtual, type UsuarioAutenticado } from '../../comum/usuario-atual.js';
+import { AuthService } from './auth.service.js';
+import { SessoesService, type ParDeTokens } from './sessoes.service.js';
+import { JwtGuarda } from './guardas/jwt.guarda.js';
+import {
+  ConfirmarEmailDto,
+  EntrarDto,
+  EsqueciSenhaDto,
+  NovaSenhaDto,
+  ReenviarCodigoDto,
+  RegistrarDto,
+} from './dto/auth.dto.js';
+
+const COOKIE_DE_REFRESH = 'gm_refresh';
+
+@ApiTags('auth')
+@Controller('auth')
+export class AuthController {
+  constructor(
+    private readonly auth: AuthService,
+    private readonly sessoes: SessoesService,
+  ) {}
+
+  /**
+   * O refresh token vai em cookie httpOnly, nunca no corpo da resposta.
+   *
+   * Em cookie httpOnly o JavaScript da página não alcança o token, então um XSS
+   * não consegue roubar a sessão — que é a diferença entre um bug de tela e um
+   * vazamento de contas. `SameSite=Lax` cobre CSRF nas requisições que
+   * importam (docs/09-SEGURANCA-LGPD.md).
+   */
+  private gravarCookie(resposta: Response, refresh: string): void {
+    resposta.cookie(COOKIE_DE_REFRESH, refresh, {
+      httpOnly: true,
+      secure: configuracao.ehProducao,
+      sameSite: 'lax',
+      path: '/v1/auth',
+      maxAge: configuracao.jwt.validadeDoRefreshEmDias * 24 * 60 * 60 * 1000,
+    });
+  }
+
+  private limparCookie(resposta: Response): void {
+    resposta.clearCookie(COOKIE_DE_REFRESH, { path: '/v1/auth' });
+  }
+
+  private responder(resposta: Response, tokens: ParDeTokens): { access: string } {
+    this.gravarCookie(resposta, tokens.refresh);
+    return { access: tokens.access };
+  }
+
+  /** Rótulo do aparelho para a tela "Login e segurança". */
+  private aparelho(requisicao: Request): string {
+    const agente = requisicao.headers['user-agent'] ?? '';
+    if (/android|iphone|ipad|mobile/i.test(agente)) return 'Este celular';
+    return 'Navegador no computador';
+  }
+
+  // ----------------------------------------------------------- cadastro
+
+  @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Cria a conta e envia o código de confirmação' })
+  async registrar(@Body() dados: RegistrarDto) {
+    return this.auth.registrar(dados);
+  }
+
+  @Post('verify-email')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Confirma o e-mail e dá os 50 pontos de boas-vindas' })
+  async confirmarEmail(
+    @Body() dados: ConfirmarEmailDto,
+    @Req() requisicao: Request,
+    @Res({ passthrough: true }) resposta: Response,
+  ) {
+    const { tokens, user } = await this.auth.confirmarEmail(
+      dados.email,
+      dados.code,
+      this.aparelho(requisicao),
+    );
+    return { ...this.responder(resposta, tokens), user };
+  }
+
+  @Post('resend-code')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 1, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Reenvia o código (1 por minuto)' })
+  async reenviarCodigo(@Body() dados: ReenviarCodigoDto): Promise<void> {
+    await this.auth.reenviarCodigo(dados.email);
+  }
+
+  // -------------------------------------------------------------- login
+
+  @Post('login')
+  // 5 tentativas por 15 minutos, como manda docs/09-SEGURANCA-LGPD.md.
+  @Throttle({ default: { limit: 5, ttl: 900_000 } })
+  @ApiOperation({ summary: 'Entra com e-mail e senha' })
+  async entrar(
+    @Body() dados: EntrarDto,
+    @Req() requisicao: Request,
+    @Res({ passthrough: true }) resposta: Response,
+  ) {
+    const { tokens, user } = await this.auth.entrar(
+      dados.email,
+      dados.password,
+      this.aparelho(requisicao),
+    );
+    return { ...this.responder(resposta, tokens), user };
+  }
+
+  @Post('refresh')
+  @ApiOperation({ summary: 'Troca o refresh do cookie por um access novo' })
+  async renovar(@Req() requisicao: Request, @Res({ passthrough: true }) resposta: Response) {
+    const refresh = (requisicao.cookies as Record<string, string> | undefined)?.[COOKIE_DE_REFRESH];
+    if (!refresh) throw new UnauthorizedException(erro('SESSION_EXPIRED'));
+
+    const tokens = await this.sessoes.rotacionar(refresh);
+    if (!tokens) {
+      this.limparCookie(resposta);
+      throw new UnauthorizedException(erro('SESSION_EXPIRED'));
+    }
+
+    return this.responder(resposta, tokens);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Sai deste aparelho' })
+  async sair(
+    @Req() requisicao: Request,
+    @Res({ passthrough: true }) resposta: Response,
+  ): Promise<void> {
+    const refresh = (requisicao.cookies as Record<string, string> | undefined)?.[COOKIE_DE_REFRESH];
+    if (refresh) await this.sessoes.revogar(refresh);
+    this.limparCookie(resposta);
+  }
+
+  // ------------------------------------------------------ senha esquecida
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 3, ttl: 900_000 } })
+  @ApiOperation({
+    summary: 'Pede o link de nova senha',
+    description:
+      'Responde 204 exista a conta ou não: responder diferente transformaria o endpoint num verificador de quem tem conta aqui.',
+  })
+  async esqueciSenha(@Body() dados: EsqueciSenhaDto): Promise<void> {
+    await this.auth.pedirNovaSenha(dados.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 5, ttl: 900_000 } })
+  @ApiOperation({ summary: 'Define a nova senha e derruba todas as sessões' })
+  async novaSenha(@Body() dados: NovaSenhaDto): Promise<void> {
+    await this.auth.definirNovaSenha(dados.token, dados.password);
+  }
+
+  // ------------------------------------------------------------ sessões
+
+  @Get('sessions')
+  @UseGuards(JwtGuarda)
+  @ApiOperation({ summary: 'Aparelhos conectados' })
+  async aparelhos(@UsuarioAtual() usuario: UsuarioAutenticado) {
+    return this.sessoes.listarAparelhos(usuario.id);
+  }
+}

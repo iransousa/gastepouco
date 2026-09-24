@@ -52,6 +52,13 @@ enum TextSize {
   MUITO_GRANDE
 }
 
+enum VerificationKind {
+  EMAIL
+  PASSWORD_RESET
+  TWO_FACTOR
+  EMAIL_CHANGE
+}
+
 enum NotificationType {
   PRICE_DROP
   LIST_OFFER
@@ -102,6 +109,7 @@ model User {
   friendsB      Friendship[]   @relation("FriendB")
   exports       DataExport[]
   consents      Consent[]
+  verifications VerificationCode[]
 }
 
 model AuthAccount {
@@ -126,6 +134,23 @@ model Session {
   lastSeenAt  DateTime  @default(now())
   revokedAt   DateTime?
   createdAt   DateTime  @default(now())
+}
+
+/// Codigos de 6 digitos e tokens de link (docs/04-API.md).
+/// Guardados como hash: o banco nao pode entregar acesso a conta se vazar.
+/// `target` guarda o e-mail novo quando a pessoa esta trocando de e-mail.
+model VerificationCode {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      VerificationKind
+  codeHash  String
+  target    String?
+  expiresAt DateTime
+  createdAt DateTime         @default(now())
+
+  @@index([userId, kind])
+  @@index([codeHash])
 }
 
 model ConsumptionProfile {

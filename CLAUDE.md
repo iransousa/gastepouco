@@ -2,6 +2,14 @@
 
 GasteMenos é um PWA de controle de gastos no varejo. A pessoa lê o QR code da nota fiscal (NFC-e), o app guarda itens e preços, mostra os gastos do mês, compara cada preço com a média da região (dados coletivos) e recompensa cada nota com pontos, níveis e ranking. Leia `docs/01-PRD.md` antes de qualquer tarefa grande.
 
+## Estado da implementação
+
+Veja `docs/12-PROGRESSO.md` para o que já foi executado, o que falta e as
+decisões de ambiente tomadas no caminho. Atualize esse arquivo ao concluir uma
+fase.
+
+Resumo: fases 0 e 1 executadas; fase 2 com a API pronta e as telas pendentes.
+
 ## Fonte da verdade
 
 1. **Telas**: `referencia/telas/*.dc.html` (34 telas, 390×844). São o visual aprovado: copie espaçamentos, textos e hierarquia delas. O mapa tela → rota está em `docs/05-TELAS-E-ROTAS.md`.
