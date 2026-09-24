@@ -8,7 +8,7 @@ Veja `docs/12-PROGRESSO.md` para o que já foi executado, o que falta e as
 decisões de ambiente tomadas no caminho. Atualize esse arquivo ao concluir uma
 fase.
 
-Resumo: fases 0, 1 e 2 executadas. Próxima: fase 3 (ler nota fiscal).
+Resumo: fases 0, 1 e 2 executadas; fase 3 implementada mas **não validada contra uma nota real do DF** — leia a seção da fase 3 no progresso antes de confiar no parser.
 
 ## Fonte da verdade
 

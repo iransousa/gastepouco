@@ -11,6 +11,8 @@ import { RecuperarSenha } from '../rotas/acesso/RecuperarSenha.js';
 import { EntrarComGoogle } from '../rotas/acesso/EntrarComGoogle.js';
 import { PerfilDeConsumo } from '../rotas/perfil-de-consumo/PerfilDeConsumo.js';
 import { PerfilPronto } from '../rotas/perfil-de-consumo/PerfilPronto.js';
+import { Escanear } from '../rotas/ler-nota/Escanear.js';
+import { NotaLida } from '../rotas/notas/NotaLida.js';
 
 /**
  * Mapa de rotas (docs/05-TELAS-E-ROTAS.md). Os caminhos estão em português
@@ -45,6 +47,22 @@ export const rotas: RouteObject[] = [
     element: (
       <ExigeSessao>
         <PerfilPronto />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/ler-nota',
+    element: (
+      <ExigeSessao>
+        <Escanear />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/notas/:id/resultado',
+    element: (
+      <ExigeSessao>
+        <NotaLida />
       </ExigeSessao>
     ),
   },

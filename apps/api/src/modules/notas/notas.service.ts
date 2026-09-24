@@ -1,0 +1,352 @@
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { createHmac } from 'node:crypto';
+import {
+  LIMITES,
+  PONTOS,
+  codificarGeohash,
+  erro,
+  extrairChaveDaUrl,
+  lerChaveDeAcesso,
+  regiaoDoGeohash,
+  valePontosPelaData,
+} from '@gastemenos/shared';
+import { configuracao } from '../../comum/configuracao.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { PontosService, type SubidaDeNivel } from '../jogo/pontos.service.js';
+import { ProdutosService } from './produtos.service.js';
+import { RegistroDeAdaptadores } from './adaptadores/registro.js';
+import { ErroDeLeitura, type NotaLida } from './adaptadores/adaptador.js';
+
+function falha(code: string, status = HttpStatus.BAD_REQUEST): HttpException {
+  return new HttpException(erro(code), status);
+}
+
+export interface ResultadoDaLeitura {
+  id: string;
+  status: string;
+  pointsAwarded?: number;
+  levelUp?: SubidaDeNivel | null;
+  savingsCents?: number;
+  /** Frase para "Ler em voz alta" (docs/06-NFCE-LEITURA.md). */
+  speech?: string;
+}
+
+@Injectable()
+export class NotasService {
+  private readonly logger = new Logger(NotasService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pontos: PontosService,
+    private readonly produtos: ProdutosService,
+    private readonly adaptadores: RegistroDeAdaptadores,
+  ) {}
+
+  /**
+   * Recebe QR ou chave, valida e enfileira.
+   *
+   * A deduplicação é **global, não por usuário**: a chave é única no sistema
+   * inteiro (`Receipt.accessKey @unique`). Cada nota vale uma vez — senão duas
+   * pessoas leriam a mesma nota e a base de preços contaria a mesma observação
+   * duas vezes, inflando a confiança de um preço que foi visto uma só
+   * (docs/06-NFCE-LEITURA.md).
+   */
+  async registrar(
+    userId: string,
+    dados: { qrUrl?: string; accessKey?: string; source: string },
+  ): Promise<{ id: string; status: string }> {
+    const leitura = dados.qrUrl
+      ? extrairChaveDaUrl(dados.qrUrl)
+      : lerChaveDeAcesso(dados.accessKey ?? '');
+
+    if (!leitura.ok) throw falha(leitura.code);
+
+    const { chave } = leitura;
+
+    const adaptador = this.adaptadores.para(chave.uf);
+    if (!adaptador) {
+      // Chave válida, estado ainda não atendido. A mensagem precisa deixar
+      // claro que o problema é nosso, não da nota da pessoa.
+      throw new HttpException(
+        {
+          code: 'UF_NAO_ATENDIDA',
+          message: `Ainda não lemos notas desse estado. Por enquanto lemos: ${this.adaptadores.ufsAtendidas().join(', ')}.`,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const jaLida = await this.prisma.receipt.findUnique({
+      where: { accessKey: chave.valor },
+      select: { id: true, userId: true },
+    });
+
+    if (jaLida) {
+      // Mesma mensagem para "você já leu" e "outra pessoa leu": dizer que foi
+      // outra pessoa entregaria informação sobre terceiros.
+      throw falha('RECEIPT_ALREADY_READ', HttpStatus.CONFLICT);
+    }
+
+    // Nota velha entra no histórico, mas sem pontos. Limite diário idem: a
+    // nota nunca é recusada por causa da gamificação.
+    const dentroDoPrazo = valePontosPelaData(chave);
+    const dentroDoLimite = await this.pontos.podeCreditarNota(userId);
+
+    const nota = await this.prisma.receipt.create({
+      data: {
+        accessKey: chave.valor,
+        userId,
+        status: 'PENDING',
+        source: dados.source,
+        qrUrl: dados.qrUrl ?? null,
+        pointsEligible: dentroDoPrazo && dentroDoLimite,
+      },
+      select: { id: true, status: true },
+    });
+
+    return nota;
+  }
+
+  /**
+   * Grava a nota interpretada e credita os pontos numa transação só.
+   *
+   * Tudo junto de propósito: se a loja for criada, os itens gravados e o
+   * crédito falhar, a pessoa fica com a compra no histórico e sem os pontos —
+   * e não há como saber depois se ela já os recebeu.
+   */
+  async concluir(notaId: string, lida: NotaLida): Promise<ResultadoDaLeitura> {
+    const nota = await this.prisma.receipt.findUnique({
+      where: { id: notaId },
+      select: { id: true, userId: true, pointsEligible: true, status: true },
+    });
+    if (!nota) throw falha('NOT_FOUND', HttpStatus.NOT_FOUND);
+
+    const loja = await this.acharOuCriarLoja(lida.store);
+    const geohash = loja.geohash ?? '';
+
+    // Nota de valor irrisório não vale pontos (docs/07-GAMIFICACAO.md).
+    const acimaDoMinimo = lida.totalCents >= LIMITES.VALOR_MINIMO_DA_NOTA_CENTAVOS;
+    const vaiCreditar = nota.pointsEligible && acimaDoMinimo;
+
+    const itensComProduto = await Promise.all(
+      lida.items.map(async (item) => ({
+        item,
+        productId: await this.produtos.casar(item, loja.cnpj),
+      })),
+    );
+
+    // Média da região antes de gravar: a comparação que a tela mostra é com o
+    // preço que existia no momento da compra, não com o de depois dela.
+    const mediasDaRegiao = await this.mediasDaRegiao(
+      itensComProduto.map((i) => i.productId),
+      geohash,
+    );
+
+    let economiaEmCentavos = 0;
+    for (const { item, productId } of itensComProduto) {
+      const media = mediasDaRegiao.get(productId);
+      if (media && media > item.unitPriceCents) {
+        economiaEmCentavos += Math.round((media - item.unitPriceCents) * item.quantity);
+      }
+    }
+
+    const userHash = createHmac('sha256', configuracao.segredoDoHashDeUsuario)
+      .update(nota.userId)
+      .digest('hex')
+      .slice(0, 32);
+
+    const observadoEm = new Date(lida.issuedAt);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.receipt.update({
+        where: { id: notaId },
+        data: {
+          status: 'DONE',
+          storeId: loja.id,
+          issuedAt: observadoEm,
+          totalCents: lida.totalCents,
+          discountCents: lida.discountCents ?? null,
+          paymentMethod: lida.paymentMethod ?? null,
+          savingsCents: economiaEmCentavos,
+          processedAt: new Date(),
+          // A URL do QR não fica guardada além do processamento
+          // (docs/09-SEGURANCA-LGPD.md, "Minimização").
+          qrUrl: null,
+        },
+      });
+
+      for (const { item, productId } of itensComProduto) {
+        const criado = await tx.receiptItem.create({
+          data: {
+            receiptId: notaId,
+            productId,
+            rawDescription: item.rawDescription,
+            storeCode: item.storeCode ?? null,
+            gtin: item.gtin ?? null,
+            quantity: item.quantity,
+            unit: item.unit,
+            unitPriceCents: item.unitPriceCents,
+            totalCents: item.totalCents,
+            regionAvgCents: mediasDaRegiao.get(productId) ?? null,
+          },
+          select: { id: true },
+        });
+
+        if (geohash) {
+          await tx.priceObservation.create({
+            data: {
+              productId,
+              storeId: loja.id,
+              receiptItemId: criado.id,
+              // Nunca o userId: o preço entra na base sem ligação com a pessoa.
+              userHash,
+              unitPriceCents: item.unitPriceCents,
+              observedAt: observadoEm,
+              geohash,
+            },
+          });
+        }
+      }
+    });
+
+    let pontosCreditados = 0;
+    let subiuDeNivel: SubidaDeNivel | null = null;
+
+    if (vaiCreditar) {
+      const nota60 = await this.pontos.creditar(nota.userId, PONTOS.NOTA_LIDA, 'RECEIPT', notaId);
+      if (nota60.creditado) pontosCreditados += PONTOS.NOTA_LIDA;
+      subiuDeNivel = nota60.levelUp;
+
+      // Mercado novo para esta pessoa vale um bônus, uma vez por CNPJ.
+      const jaComprouAqui = await this.prisma.receipt.count({
+        where: { userId: nota.userId, storeId: loja.id, status: 'DONE', NOT: { id: notaId } },
+      });
+      if (jaComprouAqui === 0) {
+        const bonus = await this.pontos.creditar(
+          nota.userId,
+          PONTOS.MERCADO_NOVO,
+          'NEW_STORE',
+          loja.cnpj,
+        );
+        if (bonus.creditado) pontosCreditados += PONTOS.MERCADO_NOVO;
+        subiuDeNivel ??= bonus.levelUp;
+      }
+
+      await this.prisma.receipt.update({
+        where: { id: notaId },
+        data: { pointsAwarded: pontosCreditados },
+      });
+    }
+
+    return {
+      id: notaId,
+      status: 'DONE',
+      pointsAwarded: pontosCreditados,
+      levelUp: subiuDeNivel,
+      savingsCents: economiaEmCentavos,
+      speech: this.frasePara(lida, pontosCreditados),
+    };
+  }
+
+  /** Marca a falha com o motivo que a tela sabe traduzir. */
+  async marcarFalha(notaId: string, erroDeLeitura: ErroDeLeitura): Promise<void> {
+    await this.prisma.receipt.update({
+      where: { id: notaId },
+      data: { status: erroDeLeitura.motivo, failureReason: erroDeLeitura.motivo },
+    });
+  }
+
+  private async acharOuCriarLoja(dados: NotaLida['store']) {
+    const existente = await this.prisma.store.findUnique({ where: { cnpj: dados.cnpj } });
+    if (existente) return existente;
+
+    // Geocodificação real entra na fase 5, junto com o módulo de preços. Até
+    // lá, a região vem do centro de Brasília para o DF — o que mantém o
+    // agregado funcionando sem prometer precisão que não temos.
+    const { lat, lng } = { lat: -15.7942, lng: -47.8822 };
+
+    return this.prisma.store.create({
+      data: {
+        cnpj: dados.cnpj,
+        name: dados.name,
+        address: dados.address ?? null,
+        city: dados.city ?? null,
+        uf: dados.uf,
+        lat,
+        lng,
+        geohash: codificarGeohash(lat, lng),
+      },
+    });
+  }
+
+  /**
+   * Média da região por produto, dos últimos 7 dias.
+   *
+   * Só devolve o que cumpre o anonimato mínimo — 5 notas de 3 pessoas
+   * diferentes (docs/02-ARQUITETURA.md). Abaixo disso, o produto simplesmente
+   * não entra no mapa, e a tela mostra "Ainda juntando preços desta região".
+   */
+  private async mediasDaRegiao(
+    productIds: string[],
+    geohash: string,
+  ): Promise<Map<string, number>> {
+    const medias = new Map<string, number>();
+    if (!geohash || productIds.length === 0) return medias;
+
+    const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const regiao = regiaoDoGeohash(geohash);
+
+    const observacoes = await this.prisma.priceObservation.findMany({
+      where: {
+        productId: { in: productIds },
+        geohash: { in: regiao },
+        observedAt: { gte: seteDiasAtras },
+      },
+      select: { productId: true, unitPriceCents: true, userHash: true },
+    });
+
+    const porProduto = new Map<string, { precos: number[]; pessoas: Set<string> }>();
+    for (const observacao of observacoes) {
+      const atual = porProduto.get(observacao.productId) ?? { precos: [], pessoas: new Set() };
+      atual.precos.push(observacao.unitPriceCents);
+      atual.pessoas.add(observacao.userHash);
+      porProduto.set(observacao.productId, atual);
+    }
+
+    for (const [productId, dados] of porProduto) {
+      if (dados.precos.length < 5 || dados.pessoas.size < 3) continue;
+      medias.set(productId, mediaAparada(dados.precos));
+    }
+
+    return medias;
+  }
+
+  private frasePara(lida: NotaLida, pontos: number): string {
+    const reais = Math.floor(lida.totalCents / 100);
+    const centavos = lida.totalCents % 100;
+    const valor = centavos
+      ? `${reais} reais e ${centavos} centavos`
+      : `${reais} reais`;
+
+    const comPontos = pontos > 0 ? ` Você ganhou ${pontos} pontos.` : '';
+    return `Nota do ${lida.store.name}, ${valor}.${comPontos}`;
+  }
+}
+
+/**
+ * Média aparada: descarta 10% em cada ponta antes de calcular.
+ *
+ * Um preço digitado errado ou um item promocional isolado desloca a média
+ * simples o bastante para a tela mentir. Aparar as pontas custa duas linhas e
+ * resolve (docs/02-ARQUITETURA.md).
+ */
+export function mediaAparada(valores: number[]): number {
+  if (valores.length === 0) return 0;
+
+  const ordenados = [...valores].sort((a, b) => a - b);
+  const aparar = Math.floor(ordenados.length * 0.1);
+  const miolo = ordenados.slice(aparar, ordenados.length - aparar);
+  const usados = miolo.length > 0 ? miolo : ordenados;
+
+  return Math.round(usados.reduce((soma, v) => soma + v, 0) / usados.length);
+}

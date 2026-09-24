@@ -15,3 +15,19 @@ expect.extend(matchers);
  * papéis ARIA e rótulos — não cor.
  */
 HTMLCanvasElement.prototype.getContext = vi.fn(() => null) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+
+/**
+ * O jsdom não implementa `matchMedia`. O padrão aqui é "não prefere menos
+ * movimento", para os testes exercitarem o caminho que anima; quem precisa do
+ * outro caminho sobrescreve no próprio teste.
+ */
+window.matchMedia = ((consulta: string) => ({
+  matches: false,
+  media: consulta,
+  onchange: null,
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  addListener: vi.fn(),
+  removeListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+})) as unknown as typeof window.matchMedia;

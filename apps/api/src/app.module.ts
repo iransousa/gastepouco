@@ -9,6 +9,8 @@ import { JogoModule } from './modules/jogo/jogo.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { ContaModule } from './modules/conta/conta.module.js';
 import { DevModule } from './modules/dev/dev.module.js';
+import { NotasModule } from './modules/notas/notas.module.js';
+import { BullModule } from '@nestjs/bullmq';
 import { configuracao } from './comum/configuracao.js';
 
 /**
@@ -21,12 +23,21 @@ import { configuracao } from './comum/configuracao.js';
     // Teto global. Login, cadastro e leitura de nota apertam mais nos próprios
     // controllers (docs/09-SEGURANCA-LGPD.md).
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
+    // Fila da leitura de notas: a consulta ao portal da SEFAZ é lenta e pode
+    // falhar, então não pode acontecer dentro da requisição.
+    BullModule.forRoot({
+      connection: (() => {
+        const url = new URL(process.env.REDIS_URL ?? 'redis://127.0.0.1:6379');
+        return { host: url.hostname, port: Number(url.port || 6379) };
+      })(),
+    }),
     PrismaModule,
     EmailModule,
     JogoModule,
     SaudeModule,
     AuthModule,
     ContaModule,
+    NotasModule,
     // Atalhos de teste. Fora de produção, e o próprio controller confere de novo.
     ...(configuracao.ehProducao ? [] : [DevModule]),
   ],

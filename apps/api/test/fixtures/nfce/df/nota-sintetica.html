@@ -1,0 +1,120 @@
+<!doctype html>
+<!--
+  FIXTURE SINTÉTICA — não é uma captura real. Veja README.md nesta pasta.
+  Reproduz a estrutura do modelo padrão de consulta da NFC-e da SEFAZ.
+
+  Compra montada para exercitar os casos difíceis:
+  - item vendido por peso (0,638 kg), com quantidade decimal
+  - item com GTIN de 13 dígitos e item com código interno curto
+  - total com separador de milhar
+  - CPF do consumidor presente (o parser tem que registrar sem guardar)
+  - "Troco" com NaN e "Valor pago" diferente de "Valor a pagar", que é a
+    armadilha real da página
+-->
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>NFC-e - Consulta</title></head>
+<body>
+<div id="conteudo">
+  <div class="txtTopo">SUPERMERCADO VILA NOVA LTDA</div>
+  <div class="text">CNPJ: 08.376.451/0001-29</div>
+  <div class="text">CLN 208, Bloco A, Loja 15, Asa Norte, Brasília, DF</div>
+
+  <table id="tabResult">
+    <tr>
+      <td>
+        <span class="txtTit">ARROZ TIPO 1 5KG</span>
+        <span class="RCod">(Código: 7896006711056)</span>
+        <span class="Rqtd">Qtde.:2</span>
+        <span class="RUN">UN: UN</span>
+        <span class="RvlUnit">Vl. Unit.: 28,90</span>
+      </td>
+      <td class="txtTit"><span class="valor">57,80</span></td>
+    </tr>
+    <tr>
+      <td>
+        <span class="txtTit">CAFE TORRADO E MOIDO 500G</span>
+        <span class="RCod">(Código: 7896005800010)</span>
+        <span class="Rqtd">Qtde.:2</span>
+        <span class="RUN">UN: UN</span>
+        <span class="RvlUnit">Vl. Unit.: 21,40</span>
+      </td>
+      <td class="txtTit"><span class="valor">42,80</span></td>
+    </tr>
+    <tr>
+      <td>
+        <span class="txtTit">CARNE MOIDA PATINHO</span>
+        <span class="RCod">(Código: 000000000001000064)</span>
+        <span class="Rqtd">Qtde.:0,638</span>
+        <span class="RUN">UN: KG</span>
+        <span class="RvlUnit">Vl. Unit.: 65,90</span>
+      </td>
+      <td class="txtTit"><span class="valor">42,04</span></td>
+    </tr>
+    <tr>
+      <td>
+        <span class="txtTit">DETERGENTE LIQUIDO 500ML</span>
+        <span class="RCod">(Código: 001234)</span>
+        <span class="Rqtd">Qtde.:6</span>
+        <span class="RUN">UN: UN</span>
+        <span class="RvlUnit">Vl. Unit.: 2,89</span>
+      </td>
+      <td class="txtTit"><span class="valor">17,34</span></td>
+    </tr>
+    <tr>
+      <td>
+        <span class="txtTit">BANANA PRATA</span>
+        <span class="RCod">(Código: 000002)</span>
+        <span class="Rqtd">Qtde.:2,5</span>
+        <span class="RUN">UN: KG</span>
+        <span class="RvlUnit">Vl. Unit.: 5,98</span>
+      </td>
+      <td class="txtTit"><span class="valor">14,95</span></td>
+    </tr>
+    <tr>
+      <td>
+        <span class="txtTit">REFRIGERANTE COLA 2L</span>
+        <span class="RCod">(Código: 7894900011517)</span>
+        <span class="Rqtd">Qtde.:4</span>
+        <span class="RUN">UN: UN</span>
+        <span class="RvlUnit">Vl. Unit.: 8,99</span>
+      </td>
+      <td class="txtTit"><span class="valor">35,96</span></td>
+    </tr>
+  </table>
+
+  <div id="totalNota">
+    <label>Qtd. total de itens</label><span class="totalNumb">6</span>
+    <label>Valor total R$:</label><span class="totalNumb txtMax">1.210,89</span>
+    <label>Descontos R$:</label><span class="totalNumb">0,00</span>
+    <label>Valor a pagar R$:</label><span class="totalNumb txtMax">210,89</span>
+  </div>
+
+  <div id="infoPagamento">
+    <label>Forma de pagamento:</label>
+    <span class="tx">Cartão de Crédito</span>
+    <label>Valor pago R$:</label><span class="tx">250,00</span>
+    <label>Troco R$:</label><span class="tx">NaN</span>
+  </div>
+
+  <div id="infos">
+    <div class="ui-collapsible-content">
+      <ul class="ui-listview">
+        <li>
+          <strong>Consumidor</strong>
+          <span>CPF do consumidor: 123.456.789-00</span>
+        </li>
+        <li>
+          <strong>Chave de acesso</strong>
+          <span>5326 0908 3764 5100 0129 6500 1000 0001 2311 0000 0011</span>
+        </li>
+        <li>
+          Número: 000000123 Série: 001
+          Emissão: 24/09/2026 18:32:11-03:00
+          Protocolo de Autorização: 153260001234567
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>

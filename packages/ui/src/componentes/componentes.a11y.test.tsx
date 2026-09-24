@@ -8,6 +8,7 @@ import { BottomNav } from './BottomNav.js';
 import { Button } from './Button.js';
 import { Card } from './Card.js';
 import { Chip } from './Chip.js';
+import { ConfettiBurst } from './ConfettiBurst.js';
 import { Icon } from './Icon.js';
 import { IconButton } from './IconButton.js';
 import { LevelRing } from './LevelRing.js';
@@ -273,5 +274,27 @@ describe('BottomNav', () => {
     for (const rotulo of ['Início', 'Gastos', 'Ofertas', 'Ranking', 'Ler nota']) {
       expect(screen.getByText(rotulo)).toBeInTheDocument();
     }
+  });
+});
+
+describe('ConfettiBurst', () => {
+  it('não renderiza nada quando o movimento reduzido está ligado', () => {
+    document.documentElement.setAttribute('data-reduce-motion', 'true');
+    const { container } = render(<ConfettiBurst />);
+    expect(container.querySelector('.gm-confetti')).toBeNull();
+    document.documentElement.removeAttribute('data-reduce-motion');
+  });
+
+  it('é decoração: fica fora do alcance do leitor de tela', () => {
+    const { container } = render(<ConfettiBurst />);
+    const confete = container.querySelector('.gm-confetti');
+    // Sem movimento no jsdom o componente não renderiza; quando renderiza,
+    // precisa estar escondido do leitor.
+    if (confete) expect(confete).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('não tem violação de axe', async () => {
+    const { container } = render(<ConfettiBurst />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -46,6 +46,10 @@ export {
 } from './componentes/SponsoredBanner.js';
 export { Toast, type ToastProps } from './componentes/Toast.js';
 export {
+  ConfettiBurst,
+  type ConfettiBurstProps,
+} from './componentes/ConfettiBurst.js';
+export {
   BottomNav,
   ITENS_PADRAO,
   type BottomNavItem,

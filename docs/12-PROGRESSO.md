@@ -7,7 +7,7 @@ Estado de cada fase de `11-ROADMAP-E-PROMPTS.md`. Atualize ao concluir uma fase.
 | 0 | Monorepo e infraestrutura | ✅ **EXECUTADO** |
 | 1 | Design system em código | ✅ **EXECUTADO** |
 | 2 | Primeiro uso e acesso | ✅ **EXECUTADO** |
-| 3 | Ler nota fiscal | ⬜ PLANEJADO |
+| 3 | Ler nota fiscal | 🟡 **PARCIAL** — tudo implementado e testado; falta validar contra uma nota real do DF |
 | 4 | Início, gastos e detalhe da nota | ⬜ PLANEJADO |
 | 5 | Preços da região, lista e ofertas | ⬜ PLANEJADO |
 | 6 | Jogo: níveis, selos, ranking, compartilhar | ⬜ PLANEJADO |
@@ -143,3 +143,55 @@ confere `NODE_ENV` a cada chamada, e a rota fica fora do Swagger.
 `VerificationCode` (+ enum `VerificationKind`) não existia em
 `prisma/schema.prisma`, mas `04-API.md` pede código de 6 dígitos e link de
 recuperação. Guardado como hash, com `expiresAt`.
+
+
+## Fase 3 — parcial
+
+**Implementado e testado (34 testes na API):**
+
+- Parser da NFC-e por rótulo visível, não por classe CSS nem posição, com
+  caminho de segurança pelo texto corrido da linha
+- Adaptador do DF e registro por código IBGE da UF
+- Fila BullMQ com 3 tentativas e espera crescente; buscador com 1 requisição
+  por segundo por UF, User-Agent identificado e cache de 24 h por chave
+- Deduplicação **global** pela chave de acesso
+- Casamento de produto por GTIN → alias da loja → descrição normalizada
+- Observação de preço com `userHash`, nunca o `userId`
+- Economia calculada contra a média aparada da região, respeitando o anonimato
+  mínimo de 5 notas e 3 pessoas
+- Pontos numa transação com a gravação, com bônus de mercado novo uma vez por
+  CNPJ; excluir a nota estorna
+- SSE com teto de 30 s, e `GET /receipts`, `DELETE /receipts/:id`
+- Telas Escanear (BarcodeDetector com reserva `@zxing/browser`, lanterna,
+  galeria, digitar chave, vibração) e NotaLida (ConfettiBurst que respeita
+  movimento reduzido), mais fila local em IndexedDB para leitura sem internet
+
+### ⚠️ O que **não** está validado
+
+O critério de aceite da fase diz "ler um QR real do DF registra a nota em menos
+de 10 s". **Isso não foi verificado.** Não houve como capturar uma nota real do
+DF nem chamar o portal da SEFAZ a partir do ambiente de desenvolvimento.
+
+A fixture em `test/fixtures/nfce/df/nota-sintetica.html` é escrita à mão sobre
+a estrutura do modelo padrão da SEFAZ. Os testes provam que o parser é
+consistente com essa estrutura; **não** provam que ele lê o portal do DF. Um
+parser testado só contra a fixture que o próprio autor escreveu está testando
+as suposições do autor.
+
+O que fazer antes de habilitar o DF em produção está em
+`test/fixtures/nfce/df/README.md`, incluindo quais capturas valem a pena ter e
+o lembrete de remover o CPF do consumidor antes de commitar.
+
+### Decisões
+
+- **Chave inventada à mão é recusada pela validação.** Os testes calculam o
+  dígito verificador de verdade — o que custou duas correções e é exatamente o
+  comportamento que se quer.
+- **`prefers-reduced-motion` indisponível significa não animar.** Nem toda
+  webview tem `matchMedia`; sem conseguir perguntar, confete indesejado
+  incomoda quem tem sensibilidade a movimento e a falta dele não machuca
+  ninguém.
+- **Erro de portal volta para a fila; erro de parse não.** Tentar de novo com o
+  mesmo HTML dá o mesmo resultado e só gasta visita ao portal.
+- **A URL do QR é apagada depois de processar** (docs/09, "Minimização").
+- **`eslint-plugin-react-hooks` ativado** no web e no design system.
