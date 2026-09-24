@@ -15,6 +15,9 @@ import { Escanear } from '../rotas/ler-nota/Escanear.js';
 import { NotaLida } from '../rotas/notas/NotaLida.js';
 import { DetalheNota } from '../rotas/notas/DetalheNota.js';
 import { Gastos } from '../rotas/gastos/Gastos.js';
+import { Precos } from '../rotas/precos/Precos.js';
+import { Lista } from '../rotas/lista/Lista.js';
+import { Ofertas } from '../rotas/ofertas/Ofertas.js';
 
 /**
  * Mapa de rotas (docs/05-TELAS-E-ROTAS.md). Os caminhos estão em português
@@ -81,6 +84,30 @@ export const rotas: RouteObject[] = [
     element: (
       <ExigeSessao>
         <Gastos />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/produtos/:id/precos',
+    element: (
+      <ExigeSessao>
+        <Precos />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/lista',
+    element: (
+      <ExigeSessao>
+        <Lista />
+      </ExigeSessao>
+    ),
+  },
+  {
+    path: '/ofertas',
+    element: (
+      <ExigeSessao>
+        <Ofertas />
       </ExigeSessao>
     ),
   },

@@ -224,6 +224,8 @@ const TOTAIS_ESPERADOS = {
   } as Record<string, number>,
   trimestre: 421290, // julho a setembro
   ano: 1294030,
+  /** Estimativa da lista da semana, na tela Lista. */
+  listaDaSemana: 14672,
 };
 
 /** Dias de setembro de 2026 em que cada uma das 15 notas foi emitida. */
@@ -632,13 +634,16 @@ async function main(): Promise<void> {
   const lista = await prisma.shoppingList.create({
     data: { userId: camila.id, name: 'Lista da semana' },
   });
+  // A tela Lista mostra R$ 146,72 de estimativa. A composição abaixo fecha
+  // esse valor com os preços que já estão no seed — `conferir` garante isso
+  // no fim, para ninguém mexer numa quantidade e a tela sair do lugar.
   const itensDaLista = [
     { label: 'Café torrado e moído 500g', produto: 'Café torrado e moído 500g', qtd: 2, dias: 21 },
     { label: 'Arroz tipo 1 5kg', produto: 'Arroz tipo 1 5kg', qtd: 1, dias: 45 },
-    { label: 'Leite integral 1L', produto: 'Leite integral 1L', qtd: 12, dias: 14 },
+    { label: 'Leite integral 1L', produto: 'Leite integral 1L', qtd: 8, dias: 14 },
     { label: 'Detergente líquido 500ml', produto: 'Detergente líquido 500ml', qtd: 3, dias: 15 },
     { label: 'Banana prata', produto: 'Banana prata', qtd: 2, dias: 7 },
-    { label: 'Papel higiênico 12 rolos', produto: 'Papel higiênico 12 rolos', qtd: 1, dias: 30 },
+    { label: 'Molho de tomate 340g', produto: 'Molho de tomate 340g', qtd: 3, dias: 20 },
   ];
   await prisma.shoppingListItem.createMany({
     data: itensDaLista.map((item, posicao) => {
@@ -752,6 +757,15 @@ async function main(): Promise<void> {
   conferir(
     pontos._sum.amount === pontosTotais,
     `pontos deveriam somar ${pontosTotais}, somaram ${pontos._sum.amount}`,
+  );
+
+  const somaDaLista = await prisma.shoppingListItem.aggregate({
+    where: { list: { userId: camila.id } },
+    _sum: { estimatedCents: true },
+  });
+  conferir(
+    somaDaLista._sum.estimatedCents === TOTAIS_ESPERADOS.listaDaSemana,
+    `a lista deveria estimar ${TOTAIS_ESPERADOS.listaDaSemana} centavos, estimou ${somaDaLista._sum.estimatedCents}`,
   );
 
   if (problemas.length) {

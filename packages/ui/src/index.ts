@@ -60,6 +60,11 @@ export {
   type BarraSemanal,
 } from './componentes/WeeklyBars.js';
 export {
+  PriceHistoryChart,
+  type PriceHistoryChartProps,
+  type PontoDePreco,
+} from './componentes/PriceHistoryChart.js';
+export {
   BottomNav,
   ITENS_PADRAO,
   type BottomNavItem,

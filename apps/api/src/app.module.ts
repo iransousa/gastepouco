@@ -11,6 +11,10 @@ import { ContaModule } from './modules/conta/conta.module.js';
 import { DevModule } from './modules/dev/dev.module.js';
 import { NotasModule } from './modules/notas/notas.module.js';
 import { GastosModule } from './modules/gastos/gastos.module.js';
+import { PrecosModule } from './modules/precos/precos.module.js';
+import { ListaModule } from './modules/lista/lista.module.js';
+import { OfertasModule } from './modules/ofertas/ofertas.module.js';
+import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
 import { configuracao } from './comum/configuracao.js';
 
@@ -21,6 +25,8 @@ import { configuracao } from './comum/configuracao.js';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['../../.env', '.env'] }),
+    // Jobs agendados: agregação de preços a cada 15 min (docs/02-ARQUITETURA.md).
+    ScheduleModule.forRoot(),
     // Teto global. Login, cadastro e leitura de nota apertam mais nos próprios
     // controllers (docs/09-SEGURANCA-LGPD.md).
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
@@ -40,6 +46,9 @@ import { configuracao } from './comum/configuracao.js';
     ContaModule,
     NotasModule,
     GastosModule,
+    PrecosModule,
+    ListaModule,
+    OfertasModule,
     // Atalhos de teste. Fora de produção, e o próprio controller confere de novo.
     ...(configuracao.ehProducao ? [] : [DevModule]),
   ],

@@ -9,7 +9,7 @@ Estado de cada fase de `11-ROADMAP-E-PROMPTS.md`. Atualize ao concluir uma fase.
 | 2 | Primeiro uso e acesso | ✅ **EXECUTADO** |
 | 3 | Ler nota fiscal | 🟡 **PARCIAL** — tudo implementado e testado; falta validar contra uma nota real do DF |
 | 4 | Início, gastos e detalhe da nota | ✅ **EXECUTADO** |
-| 5 | Preços da região, lista e ofertas | ⬜ PLANEJADO |
+| 5 | Preços da região, lista e ofertas | ✅ **EXECUTADO** |
 | 6 | Jogo: níveis, selos, ranking, compartilhar | ⬜ PLANEJADO |
 | 7 | Minha conta, notificações e ajuda | ⬜ PLANEJADO |
 | 8 | Polimento, acessibilidade e lançamento | ⬜ PLANEJADO |
@@ -255,3 +255,49 @@ e mexer neles seria redesenhar a identidade.
    limpeza passou a ser por usuário, com cascade.
 2. **Ler uma nota não renomeia a loja.** A nota traz a razão social em
    maiúsculas; sobrescrever o nome curado pioraria a tela a cada leitura.
+
+
+## Fase 5 — executado
+
+Módulo de preços com agregação por geohash, lista de compras com sugestão de
+recompra, ofertas patrocinadas e da comunidade, e as telas Preços, Lista e
+Ofertas. 14 testes de aceite em `test/precos.spec.ts`, 60 na API no total.
+
+**O aceite está provado:** o histórico do café reproduz a queda de R$ 24,90 em
+junho para R$ 21,40 em setembro, as lojas vêm ordenadas do mais barato, a lista
+estima R$ 146,72, toda oferta patrocinada carrega o selo e região sem dados
+devolve `enoughData: false` — que é o que faz a tela dizer "Ainda juntando
+preços desta região" em vez de desenhar um gráfico vazio.
+
+### O anonimato é aplicado na gravação, não só na leitura
+
+Um agregado que não pode ser mostrado **não é gravado**. Filtrar só na leitura
+deixaria no banco uma tabela de "quanto o fulano pagou no produto X", que é
+exatamente o que o anonimato mínimo existe para impedir. Com 5 notas de 3
+pessoas, ninguém é identificável; abaixo disso, dois vizinhos deduziriam o que
+o terceiro comprou.
+
+A observação guarda `userHash` (HMAC), nunca o `userId`, e a região é o geohash
+de 5 caracteres — nunca o CEP, nunca a coordenada da loja.
+
+### Decisões
+
+- **"Onde sai mais barato" compara a lista inteira, não item a item.** A loja
+  mais barata em cada produto costuma ser uma diferente; mandar a pessoa a
+  quatro mercados para economizar R$ 6 é mau conselho. E só entra loja com
+  preço recente para a maioria dos itens — uma loja com preço de 2 dos 12
+  pareceria a mais barata só por ter menos a somar. A cobertura vai na resposta
+  para a tela poder dizer isso.
+- **A recompra usa mediana, não média.** Uma compra esquecida de três meses
+  atrás puxaria a média e o aviso chegaria tarde. Sugere a 80% do intervalo,
+  porque avisar no dia exato chega tarde para quem faz compra semanal.
+- **Queda de preço só a partir de 5%.** Variação de centavos não é notícia e
+  encheria a tela de ruído.
+- **O job recalcula do zero os últimos 2 dias**, em vez de somar
+  incrementalmente: uma nota excluída tira observações do passado, e um
+  agregado incremental carregaria o erro para sempre.
+- **No máximo uma oferta patrocinada por página**, e `sponsored` vai em toda
+  resposta da API — quem consome não recebe conteúdo pago sem saber que é pago.
+- **O gráfico de histórico tem uma série só.** O que a pessoa pagou entra como
+  linha de referência, não como segunda série: duas escalas no mesmo gráfico é
+  o erro clássico de eixo duplo.
