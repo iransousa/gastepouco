@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Notificações</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button{font-family:inherit}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 960px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box; padding: 16px 20px 28px; display: flex; flex-direction: column; gap: 18px">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<a href="Perfil.dc.html" aria-label="Voltar" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a>
+<h1 style="font-size: 20px; font-weight: 800">Notificações</h1>
+<span style="width: 44px"></span>
+</header>
+
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+<section style="display: flex; flex-direction: column; gap: 8px; animation: rise .5s ease both">
+<h2 style="font-size: 13px; font-weight: 800; letter-spacing: .08em; color: #47524C; padding-left: 4px">{{ g.title }}</h2>
+<div style="background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 20px; overflow: hidden">
+<sc-for list="{{ g.items }}" as="t" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #F0EDE4">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">{{ t.label }}</span><span style="font-size: 13px; line-height: 1.35; color: #47524C">{{ t.desc }}</span></span>
+<sc-if value="{{ t.on }}" hint-placeholder-val="{{ true }}"><button type="button" role="switch" aria-checked="true" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" style="width: 56px; height: 44px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; cursor: pointer; flex-shrink: 0"><span style="width: 52px; height: 32px; border-radius: 16px; background: #0E4D3A; padding: 3px; box-sizing: border-box; display: flex; justify-content: flex-end"><span style="width: 26px; height: 26px; border-radius: 50%; background: #D4F36B"></span></span></button></sc-if>
+<sc-if value="{{ t.off }}" hint-placeholder-val="{{ false }}"><button type="button" role="switch" aria-checked="false" aria-label="{{ t.label }}" onClick="{{ t.toggle }}" style="width: 56px; height: 44px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; cursor: pointer; flex-shrink: 0"><span style="width: 52px; height: 32px; border-radius: 16px; background: #B9B2A0; padding: 3px; box-sizing: border-box; display: flex; justify-content: flex-start"><span style="width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF"></span></span></button></sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-for>
+
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 20px; background: #ECE8FF">
+<span style="font-size: 14px; font-weight: 700; color: #3F31B0">Horário de silêncio</span>
+<span style="font-size: 13px; line-height: 1.4; color: #2F2670">Nada de notificação entre 22h e 8h. Alertas de preço esperam até de manhã.</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { on: { preco: true, lista: true, lembrete: true, ranking: true, sequencia: true, parceiros: false, resumo: true } };
+  }
+  renderVals() {
+    const defs = [
+      { title: 'ECONOMIA', items: [
+        { id: 'preco', label: 'Alerta de preço', desc: 'Quando um produto que você compra baixa na região' },
+        { id: 'lista', label: 'Itens da lista em oferta', desc: 'Avisamos antes da sua próxima compra' },
+        { id: 'lembrete', label: 'Lembrete de compra', desc: 'No seu ritmo: a cada 15 dias' }
+      ] },
+      { title: 'JOGO', items: [
+        { id: 'ranking', label: 'Ranking e conquistas', desc: 'Quando você sobe de nível ou alguém te passa' },
+        { id: 'sequencia', label: 'Sequência em risco', desc: 'Um aviso no domingo se a semana estiver sem nota' }
+      ] },
+      { title: 'E-MAIL E PARCEIROS', items: [
+        { id: 'resumo', label: 'Resumo semanal por e-mail', desc: 'Gastos da semana e o que baixou de preço' },
+        { id: 'parceiros', label: 'Ofertas de mercados parceiros', desc: 'Promoções patrocinadas. Você pode sair quando quiser.' }
+      ] }
+    ];
+    const on = this.state.on;
+    return {
+      groups: defs.map((g) => ({
+        title: g.title,
+        items: g.items.map((it) => ({
+          label: it.label, desc: it.desc, on: !!on[it.id], off: !on[it.id],
+          toggle: () => { const n = Object.assign({}, this.state.on); n[it.id] = !n[it.id]; this.setState({ on: n }); }
+        }))
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

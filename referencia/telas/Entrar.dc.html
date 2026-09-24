@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Entrar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button,input{font-family:inherit}
+input:focus{outline:none;border-color:#0E4D3A !important;box-shadow:0 0 0 4px #E4F5A6}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-8px) rotate(-4deg)}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box; display: flex; flex-direction: column; padding: 16px 24px 28px; gap: 20px">
+
+<div aria-hidden="true" style="position: absolute; right: -80px; top: -90px; width: 260px; height: 260px; border-radius: 50%; background: #E4F5A6"></div>
+<div aria-hidden="true" style="position: absolute; right: 36px; top: 70px; width: 64px; height: 64px; border-radius: 20px; background: #0E4D3A; color: #D4F36B; display: flex; align-items: center; justify-content: center; animation: bob 3s ease-in-out infinite"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"></path><path d="M12 8v6M9.5 11.5 12 14l2.5-2.5"></path></svg></div>
+
+<header style="position: relative; display: flex; align-items: center">
+<a href="Onboarding3.dc.html" aria-label="Voltar" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a>
+</header>
+
+<section style="position: relative; display: flex; flex-direction: column; gap: 8px; margin-top: 56px; animation: rise .5s ease both">
+<h1 style="font-size: 34px; font-weight: 800; line-height: 1.05">Que bom te ver<br>de novo</h1>
+<p style="margin: 0; font-size: 15px; color: #4A554F">Entre para continuar sua sequência de 5 semanas.</p>
+</section>
+
+<form style="display: flex; flex-direction: column; gap: 14px; animation: rise .5s .1s ease both">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700">E-mail
+<input type="email" placeholder="voce@email.com" autocomplete="email" style="height: 52px; padding: 0 16px; border-radius: 14px; border: 1.5px solid #D8D2C2; background: #FFFFFF; font-size: 16px; color: #14201A; box-sizing: border-box">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700">Senha
+<span style="position: relative; display: flex">
+<input type="{{ pwType }}" placeholder="Sua senha" autocomplete="current-password" style="flex-grow: 1; height: 52px; padding: 0 56px 0 16px; border-radius: 14px; border: 1.5px solid #D8D2C2; background: #FFFFFF; font-size: 16px; color: #14201A; box-sizing: border-box; min-width: 0">
+<button type="button" aria-label="{{ pwLabel }}" onClick="{{ togglePw }}" style="position: absolute; right: 4px; top: 4px; width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: #47524C; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+</span>
+</label>
+<a href="RecuperarSenha.dc.html" style="align-self: flex-end; font-size: 14px; font-weight: 700; text-decoration: none; padding: 6px 0">Esqueci minha senha</a>
+<a href="Main.dc.html" style="height: 56px; border-radius: 18px; background: #0E4D3A; color: #F5F3EC; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; text-decoration: none">Entrar</a>
+</form>
+
+<div style="display: flex; align-items: center; gap: 12px; font-size: 13px; color: #47524C"><span style="flex-grow: 1; height: 1px; background: #D8D2C2"></span>ou entre com<span style="flex-grow: 1; height: 1px; background: #D8D2C2"></span></div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<a href="GoogleLogin.dc.html" style="height: 52px; border-radius: 16px; border: 1.5px solid #D8D2C2; background: #FFFFFF; color: #14201A; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; text-decoration: none; box-sizing: border-box">Google</a>
+<a href="Main.dc.html" style="height: 52px; border-radius: 16px; border: 1.5px solid #D8D2C2; background: #FFFFFF; color: #14201A; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; text-decoration: none; box-sizing: border-box">Apple</a>
+</div>
+
+<p style="margin: auto 0 0; text-align: center; font-size: 15px; color: #4A554F">Ainda não tem conta? <a href="CriarConta.dc.html" style="font-weight: 800">Criar conta</a></p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { show: false };
+  }
+  renderVals() {
+    const show = this.state.show;
+    return {
+      pwType: show ? 'text' : 'password',
+      pwLabel: show ? 'Esconder senha' : 'Mostrar senha',
+      togglePw: () => this.setState({ show: !this.state.show })
+    };
+  }
+}
+</script>
+</body>
+</html>

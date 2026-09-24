@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Análise de gastos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button{font-family:inherit}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes draw{from{stroke-dasharray:0 339.3}}
+@keyframes pulse{0%,100%{box-shadow:0 8px 20px rgba(14,77,58,.35),0 0 0 0 rgba(212,243,107,.8)}50%{box-shadow:0 8px 20px rgba(14,77,58,.35),0 0 0 12px rgba(212,243,107,0)}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box">
+<main style="position: absolute; top: 0; left: 0; right: 0; bottom: 84px; overflow-y: auto; padding: 20px 20px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+
+<header style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<h1 style="font-size: 28px; font-weight: 800">Seus gastos</h1>
+<div style="display: flex; align-items: center; gap: 2px; background: #FFFFFF; border: 1px solid #E2DDD0; border-radius: 14px">
+<button aria-label="Mês anterior" style="width: 44px; height: 44px; border: 0; background: transparent; color: #14201A; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+<span style="font-size: 14px; font-weight: 700">Set 2026</span>
+<button aria-label="Próximo mês" style="width: 44px; height: 44px; border: 0; background: transparent; color: #14201A; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+</div>
+</header>
+
+<div role="group" aria-label="Período" style="display: flex; gap: 4px; padding: 4px; background: #E9E5D8; border-radius: 16px">
+<sc-for list="{{ periods }}" as="p" hint-placeholder-count="3">
+<sc-if value="{{ p.on }}" hint-placeholder-val="{{ false }}"><button aria-pressed="true" onClick="{{ p.pick }}" style="flex: 1 1 0; height: 44px; border: 0; border-radius: 12px; background: #14201A; color: #F5F3EC; font-size: 14px; font-weight: 700; cursor: pointer">{{ p.label }}</button></sc-if>
+<sc-if value="{{ p.off }}" hint-placeholder-val="{{ true }}"><button aria-pressed="false" onClick="{{ p.pick }}" style="flex: 1 1 0; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #14201A; font-size: 14px; font-weight: 600; cursor: pointer">{{ p.label }}</button></sc-if>
+</sc-for>
+</div>
+
+<section style="background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 24px; padding: 18px; display: flex; flex-direction: column; gap: 16px; animation: rise .5s ease both">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #47524C">{{ cur.label }}</span>
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px">{{ cur.total }}</span>
+<span style="font-size: 13px; font-weight: 700; color: #0E4D3A; background: #E4F5A6; padding: 4px 10px; border-radius: 999px">{{ cur.delta }}</span>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 18px">
+<div style="position: relative; width: 132px; height: 132px; flex-shrink: 0">
+<svg width="132" height="132" viewBox="0 0 132 132" style="transform: rotate(-90deg)" aria-hidden="true">
+<circle cx="66" cy="66" r="54" fill="none" stroke="#0E4D3A" style="stroke-width: 20; stroke-dasharray: 141.5 339.3; stroke-dashoffset: 0; animation: draw 1s ease-out both"></circle>
+<circle cx="66" cy="66" r="54" fill="none" stroke="#F26B3A" style="stroke-width: 20; stroke-dasharray: 60.1 339.3; stroke-dashoffset: -142.5; animation: draw 1s .15s ease-out both"></circle>
+<circle cx="66" cy="66" r="54" fill="none" stroke="#C5E85A" style="stroke-width: 20; stroke-dasharray: 49.9 339.3; stroke-dashoffset: -203.6; animation: draw 1s .3s ease-out both"></circle>
+<circle cx="66" cy="66" r="54" fill="none" stroke="#6B5BE0" style="stroke-width: 20; stroke-dasharray: 46.5 339.3; stroke-dashoffset: -254.5; animation: draw 1s .45s ease-out both"></circle>
+<circle cx="66" cy="66" r="54" fill="none" stroke="#D9CFB8" style="stroke-width: 20; stroke-dasharray: 36.3 339.3; stroke-dashoffset: -302; animation: draw 1s .6s ease-out both"></circle>
+</svg>
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1"><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800">42%</span><span style="font-size: 13px; color: #47524C">Mercearia</span></div>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0; flex-grow: 1; display: flex; flex-direction: column; gap: 7px; font-size: 13px">
+<li style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0E4D3A; flex-shrink: 0"></span><span style="flex-grow: 1">Mercearia</span><strong>R$ 539</strong></li>
+<li style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #F26B3A; flex-shrink: 0"></span><span style="flex-grow: 1">Bebidas</span><strong>R$ 231</strong></li>
+<li style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #C5E85A; flex-shrink: 0"></span><span style="flex-grow: 1">Hortifrúti</span><strong>R$ 193</strong></li>
+<li style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #6B5BE0; flex-shrink: 0"></span><span style="flex-grow: 1">Limpeza</span><strong>R$ 180</strong></li>
+<li style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #D9CFB8; flex-shrink: 0"></span><span style="flex-grow: 1">Higiene</span><strong>R$ 141</strong></li>
+</ul>
+</div>
+</section>
+
+<section style="background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 24px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; animation: rise .5s .15s ease both">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="font-size: 16px; font-weight: 800">Por semana</h2><span style="font-size: 13px; color: #47524C">maior: 3ª semana</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; height: 132px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="font-size: 13px; font-weight: 700">R$ 342</span><div style="width: 100%; height: 72px; border-radius: 10px; background: #D9CFB8; transform-origin: bottom; animation: grow .8s ease-out both"></div><span style="font-size: 13px; color: #47524C">1–7</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="font-size: 13px; font-weight: 700">R$ 298</span><div style="width: 100%; height: 63px; border-radius: 10px; background: #D9CFB8; transform-origin: bottom; animation: grow .8s .1s ease-out both"></div><span style="font-size: 13px; color: #47524C">8–14</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="font-size: 13px; font-weight: 700">R$ 417</span><div style="width: 100%; height: 88px; border-radius: 10px; background: #0E4D3A; transform-origin: bottom; animation: grow .8s .2s ease-out both"></div><span style="font-size: 13px; color: #47524C">15–21</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="font-size: 13px; font-weight: 700">R$ 227</span><div style="width: 100%; height: 48px; border-radius: 10px; background: #D9CFB8; transform-origin: bottom; animation: grow .8s .3s ease-out both"></div><span style="font-size: 13px; color: #47524C">22–28</span></div>
+</div>
+</section>
+
+<a href="Precos.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 20px; background: #FFE4D6; color: #14201A; text-decoration: none; animation: rise .5s .3s ease both">
+<span style="width: 44px; height: 44px; border-radius: 14px; background: #F26B3A; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14201A" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M3 3v18h18"></path><path d="m7 14 4-4 3 3 5-6"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1"><span style="font-size: 14px; font-weight: 700">Café foi o item que mais pesou: R$ 96,50</span><span style="font-size: 13px; color: #7A2E0B">Na região ele está 16% mais barato hoje</span></span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+</a>
+</main>
+
+<nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: #FFFFFF; border-top: 1px solid #E7E3D8; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; padding: 8px 6px 0; box-sizing: border-box">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg><span>Início</span></a>
+<a href="Gastos.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #0E4D3A; font-size: 13px; font-weight: 800"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9v9z"></path><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"></path></svg><span>Gastos</span></a>
+<a href="Escanear.dc.html" style="justify-self: center; margin-top: -28px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: #0E4D3A; font-size: 13px; font-weight: 800"><span style="width: 64px; height: 64px; border-radius: 22px; background: #0E4D3A; color: #D4F36B; display: flex; align-items: center; justify-content: center; animation: pulse 2.4s ease-in-out infinite"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"></path><path d="M7 12h10"></path></svg></span><span>Ler nota</span></a>
+<a href="Ofertas.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg><span>Ofertas</span></a>
+<a href="Ranking.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"></path></svg><span>Ranking</span></a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { period: 'mes' };
+  }
+  renderVals() {
+    const data = {
+      mes: { label: 'Total em setembro', total: 'R$ 1.284,60', delta: '18% menos que agosto' },
+      tri: { label: 'Total de julho a setembro', total: 'R$ 4.212,90', delta: '6% menos que o trimestre anterior' },
+      ano: { label: 'Total em 2026', total: 'R$ 12.940,30', delta: 'média de R$ 1.438/mês' }
+    };
+    const opts = [
+      { id: 'mes', label: 'Mês' },
+      { id: 'tri', label: '3 meses' },
+      { id: 'ano', label: 'Ano' }
+    ];
+    const period = this.state.period;
+    const periods = opts.map((o) => ({
+      label: o.label,
+      on: o.id === period,
+      off: o.id !== period,
+      pick: () => this.setState({ period: o.id })
+    }));
+    return { periods: periods, cur: data[period] };
+  }
+}
+</script>
+</body>
+</html>

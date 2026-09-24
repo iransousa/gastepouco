@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Login e segurança</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button{font-family:inherit}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 1000px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box; padding: 16px 20px 28px; display: flex; flex-direction: column; gap: 18px">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<a href="Perfil.dc.html" aria-label="Voltar" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a>
+<h1 style="font-size: 20px; font-weight: 800">Login e segurança</h1>
+<span style="width: 44px"></span>
+</header>
+
+<section style="display: flex; flex-direction: column; gap: 8px; animation: rise .5s ease both">
+<h2 style="font-size: 13px; font-weight: 800; letter-spacing: .08em; color: #47524C; padding-left: 4px">FORMAS DE ENTRAR</h2>
+<div style="background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 20px; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px; border-bottom: 1px solid #F0EDE4">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #F0EEE6; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 600">E-mail e senha</span><span style="font-size: 13px; color: #47524C">Senha alterada há 4 meses</span></span>
+<a href="AlterarSenha.dc.html" style="height: 44px; padding: 0 12px; border-radius: 10px; background: #F0EEE6; display: flex; align-items: center; font-size: 13px; font-weight: 700; text-decoration: none">Alterar</a>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px; border-bottom: 1px solid #F0EDE4">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #F0EEE6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; font-weight: 800">G</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 600">Google</span>
+<sc-if value="{{ google }}" hint-placeholder-val="{{ true }}"><span style="font-size: 13px; font-weight: 700; color: #0E4D3A">Conectado · camila.alves@gmail.com</span></sc-if>
+<sc-if value="{{ noGoogle }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #47524C">Não conectado</span></sc-if>
+</span>
+<sc-if value="{{ google }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ toggleGoogle }}" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #D8D2C2; background: #FFFFFF; color: #14201A; font-size: 13px; font-weight: 700; cursor: pointer">Desconectar</button></sc-if>
+<sc-if value="{{ noGoogle }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ toggleGoogle }}" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 0; background: #0E4D3A; color: #F5F3EC; font-size: 13px; font-weight: 700; cursor: pointer">Conectar</button></sc-if>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #F0EEE6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; font-weight: 800">iOS</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 600">Apple</span><span style="font-size: 13px; color: #47524C">Não conectado</span></span>
+<button type="button" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 0; background: #0E4D3A; color: #F5F3EC; font-size: 13px; font-weight: 700; cursor: pointer">Conectar</button>
+</div>
+</div>
+<p style="margin: 0; padding: 0 4px; font-size: 13px; line-height: 1.4; color: #47524C">Mantenha pelo menos uma forma de entrar ativa.</p>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px; animation: rise .5s .1s ease both">
+<h2 style="font-size: 13px; font-weight: 800; letter-spacing: .08em; color: #47524C; padding-left: 4px">PROTEÇÃO EXTRA</h2>
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 20px">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">Verificação em duas etapas</span><span style="font-size: 13px; line-height: 1.35; color: #47524C">Pedimos um código por SMS ao entrar em um aparelho novo.</span></span>
+<sc-if value="{{ twofa }}" hint-placeholder-val="{{ false }}"><button type="button" role="switch" aria-checked="true" aria-label="Verificação em duas etapas" onClick="{{ toggle2fa }}" style="width: 56px; height: 44px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; cursor: pointer; flex-shrink: 0"><span style="width: 52px; height: 32px; border-radius: 16px; background: #0E4D3A; padding: 3px; box-sizing: border-box; display: flex; justify-content: flex-end"><span style="width: 26px; height: 26px; border-radius: 50%; background: #D4F36B"></span></span></button></sc-if>
+<sc-if value="{{ no2fa }}" hint-placeholder-val="{{ true }}"><button type="button" role="switch" aria-checked="false" aria-label="Verificação em duas etapas" onClick="{{ toggle2fa }}" style="width: 56px; height: 44px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; cursor: pointer; flex-shrink: 0"><span style="width: 52px; height: 32px; border-radius: 16px; background: #B9B2A0; padding: 3px; box-sizing: border-box; display: flex; justify-content: flex-start"><span style="width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF"></span></span></button></sc-if>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px; animation: rise .5s .2s ease both">
+<h2 style="font-size: 13px; font-weight: 800; letter-spacing: .08em; color: #47524C; padding-left: 4px">APARELHOS CONECTADOS</h2>
+<div style="background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 20px; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px; border-bottom: 1px solid #F0EDE4">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #E4F5A6; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E4D3A" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2"></path></svg></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 600">Este celular</span><span style="font-size: 13px; color: #47524C">Brasília · ativo agora</span></span>
+</div>
+<sc-for list="{{ devices }}" as="d" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px; border-bottom: 1px solid #F0EDE4">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #F0EEE6; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="{{ d.icon }}"></path></svg></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 600">{{ d.name }}</span><span style="font-size: 13px; color: #47524C">{{ d.meta }}</span></span>
+<button type="button" onClick="{{ d.remove }}" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #D8D2C2; background: #FFFFFF; color: #14201A; font-size: 13px; font-weight: 700; cursor: pointer">Sair</button>
+</div>
+</sc-for>
+<sc-if value="{{ hasDevices }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ removeAll }}" style="width: 100%; min-height: 52px; border: 0; background: transparent; color: #9A3412; font-size: 14px; font-weight: 700; cursor: pointer">Sair de todos os outros aparelhos</button></sc-if>
+<sc-if value="{{ noDevices }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 14px; font-size: 13px; color: #47524C; text-align: center">Nenhum outro aparelho conectado.</p></sc-if>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { google: true, twofa: false, removed: {} };
+  }
+  renderVals() {
+    const all = [
+      { id: 'tab', name: 'Tablet', meta: 'Brasília · há 2 dias', icon: 'M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2' },
+      { id: 'web', name: 'Navegador no computador', meta: 'Goiânia · há 3 semanas', icon: 'M3 5h18v11H3zM8 20h8M12 16v4' }
+    ];
+    const removed = this.state.removed;
+    const devices = all.filter((d) => !removed[d.id]).map((d) => Object.assign({}, d, {
+      remove: () => { const r = Object.assign({}, this.state.removed); r[d.id] = true; this.setState({ removed: r }); }
+    }));
+    return {
+      google: this.state.google, noGoogle: !this.state.google,
+      toggleGoogle: () => this.setState({ google: !this.state.google }),
+      twofa: this.state.twofa, no2fa: !this.state.twofa,
+      toggle2fa: () => this.setState({ twofa: !this.state.twofa }),
+      devices: devices, hasDevices: devices.length > 0, noDevices: devices.length === 0,
+      removeAll: () => this.setState({ removed: { tab: true, web: true } })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,484 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Compartilhar.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Compartilhar conquista",
+      "w": 390,
+      "x": 1880,
+      "y": 0,
+      "page": "app"
+    },
+    "Conquistas.dc.html": {
+      "h": 1180,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Conquistas e níveis",
+      "w": 390,
+      "x": 1410,
+      "y": 0,
+      "page": "inicio"
+    },
+    "Escanear.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Ler nota fiscal",
+      "w": 390,
+      "x": 470,
+      "y": 0,
+      "page": "app"
+    },
+    "Gastos.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Análise de gastos",
+      "w": 390,
+      "x": 0,
+      "y": 1224,
+      "page": "app"
+    },
+    "Lista.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Lista de compras",
+      "w": 390,
+      "x": 940,
+      "y": 1224,
+      "page": "app"
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Início",
+      "w": 390,
+      "x": 0,
+      "y": 0,
+      "page": "app"
+    },
+    "MainEscuro.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Início · tema escuro",
+      "w": 390,
+      "x": 1880,
+      "y": 0,
+      "page": "inicio"
+    },
+    "NotaLida.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Nota lida · subiu de nível",
+      "w": 390,
+      "x": 940,
+      "y": 0,
+      "page": "app"
+    },
+    "Ofertas.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Ofertas e parceiros",
+      "w": 390,
+      "x": 1410,
+      "y": 1224,
+      "page": "app"
+    },
+    "Onboarding1.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Boas-vindas 1 · Ler nota",
+      "w": 390,
+      "x": 0,
+      "y": 0,
+      "page": "inicio"
+    },
+    "Onboarding2.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Boas-vindas 2 · Preços da região",
+      "w": 390,
+      "x": 470,
+      "y": 0,
+      "page": "inicio"
+    },
+    "Onboarding3.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Boas-vindas 3 · Nível e ranking",
+      "w": 390,
+      "x": 940,
+      "y": 0,
+      "page": "inicio"
+    },
+    "Precos.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Histórico de preço na região",
+      "w": 390,
+      "x": 470,
+      "y": 1224,
+      "page": "app"
+    },
+    "Ranking.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Ranking",
+      "w": 390,
+      "x": 1410,
+      "y": 0,
+      "page": "app"
+    },
+    "Entrar.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Entrar",
+      "w": 390,
+      "x": 0,
+      "y": 1560,
+      "page": "inicio"
+    },
+    "CriarConta.dc.html": {
+      "h": 940,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Criar conta",
+      "w": 390,
+      "x": 470,
+      "y": 1560,
+      "page": "inicio"
+    },
+    "PerfilConsumo.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Perfil de consumo · 5 perguntas",
+      "w": 390,
+      "x": 940,
+      "y": 1560,
+      "page": "inicio"
+    },
+    "PerfilPronto.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Perfil pronto",
+      "w": 390,
+      "x": 1410,
+      "y": 1560,
+      "page": "inicio"
+    },
+    "GoogleLogin.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Entrar com Google",
+      "w": 390,
+      "x": 0,
+      "y": 2880,
+      "page": "inicio"
+    },
+    "VerificarEmail.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Confirmar e-mail",
+      "w": 390,
+      "x": 470,
+      "y": 2880,
+      "page": "inicio"
+    },
+    "RecuperarSenha.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Esqueci a senha · 4 etapas",
+      "w": 390,
+      "x": 940,
+      "y": 2880,
+      "page": "inicio"
+    },
+    "Perfil.dc.html": {
+      "h": 1340,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Meu perfil",
+      "w": 390,
+      "x": 0,
+      "y": 0,
+      "page": "conta"
+    },
+    "DadosPessoais.dc.html": {
+      "h": 1040,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Dados pessoais",
+      "w": 390,
+      "x": 470,
+      "y": 0,
+      "page": "conta"
+    },
+    "Seguranca.dc.html": {
+      "h": 1000,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Login e segurança",
+      "w": 390,
+      "x": 940,
+      "y": 0,
+      "page": "conta"
+    },
+    "AlterarSenha.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Alterar senha",
+      "w": 390,
+      "x": 1410,
+      "y": 0,
+      "page": "conta"
+    },
+    "Notificacoes.dc.html": {
+      "h": 960,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Notificações",
+      "w": 390,
+      "x": 1880,
+      "y": 0,
+      "page": "conta"
+    },
+    "Privacidade.dc.html": {
+      "h": 1000,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Privacidade e dados",
+      "w": 390,
+      "x": 2350,
+      "y": 0,
+      "page": "conta"
+    },
+    "PausarConta.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Pausar conta",
+      "w": 390,
+      "x": 2820,
+      "y": 0,
+      "page": "conta"
+    },
+    "EncerrarConta.dc.html": {
+      "h": 1080,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Encerrar conta",
+      "w": 390,
+      "x": 3290,
+      "y": 0,
+      "page": "conta"
+    },
+    "CentralNotificacoes.dc.html": {
+      "h": 980,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Central de notificações",
+      "w": 390,
+      "x": 0,
+      "y": 1640,
+      "page": "conta"
+    },
+    "DetalheNota.dc.html": {
+      "h": 1400,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Detalhe da nota fiscal",
+      "w": 390,
+      "x": 470,
+      "y": 1640,
+      "page": "conta"
+    },
+    "Ajuda.dc.html": {
+      "h": 1420,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Ajuda e contato",
+      "w": 390,
+      "x": 940,
+      "y": 1640,
+      "page": "conta"
+    },
+    "Acessibilidade.dc.html": {
+      "h": 1240,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Acessibilidade",
+      "w": 390,
+      "x": 0,
+      "y": 0,
+      "page": "acess"
+    },
+    "MainFacil.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "Início · modo fácil",
+      "w": 390,
+      "x": 470,
+      "y": 0,
+      "page": "acess"
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-24T12:19:31Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas",
+    "page": "app"
+  },
+  "notes": {
+    "t1": {
+      "kind": "title1",
+      "maxW": 2270,
+      "text": "Ler nota, subir de nível, competir",
+      "w": 240,
+      "x": 0,
+      "y": -260,
+      "page": "app"
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Gastar menos com dados da comunidade",
+      "w": 240,
+      "x": 0,
+      "y": 964,
+      "page": "app"
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 2270,
+      "text": "Primeiro uso, conquistas e tema escuro",
+      "w": 240,
+      "x": 0,
+      "y": -260,
+      "page": "inicio"
+    },
+    "t4": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Conta e perfil de consumo",
+      "w": 240,
+      "x": 0,
+      "y": 1300,
+      "page": "inicio"
+    },
+    "t5": {
+      "kind": "title1",
+      "maxW": 1250,
+      "text": "Acesso: Google, e-mail e senha",
+      "w": 240,
+      "x": 0,
+      "y": 2620,
+      "page": "inicio"
+    },
+    "t6": {
+      "kind": "title1",
+      "maxW": 3680,
+      "text": "Minha conta: perfil, dados, segurança, pausar e encerrar",
+      "w": 240,
+      "x": 0,
+      "y": -260,
+      "page": "conta"
+    },
+    "t7": {
+      "kind": "title1",
+      "maxW": 1250,
+      "text": "Notificações, nota e ajuda",
+      "w": 240,
+      "x": 0,
+      "y": 1380,
+      "page": "conta"
+    },
+    "t8": {
+      "kind": "title1",
+      "maxW": 860,
+      "text": "Acessível para todos",
+      "w": 240,
+      "x": 0,
+      "y": -260,
+      "page": "acess"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Escanear.dc.html",
+    "NotaLida.dc.html",
+    "Ranking.dc.html",
+    "Compartilhar.dc.html",
+    "Gastos.dc.html",
+    "Precos.dc.html",
+    "Lista.dc.html",
+    "Ofertas.dc.html",
+    "Onboarding1.dc.html",
+    "Onboarding2.dc.html",
+    "Onboarding3.dc.html",
+    "Conquistas.dc.html",
+    "MainEscuro.dc.html",
+    "Entrar.dc.html",
+    "CriarConta.dc.html",
+    "PerfilConsumo.dc.html",
+    "PerfilPronto.dc.html",
+    "GoogleLogin.dc.html",
+    "VerificarEmail.dc.html",
+    "RecuperarSenha.dc.html",
+    "Perfil.dc.html",
+    "DadosPessoais.dc.html",
+    "Seguranca.dc.html",
+    "AlterarSenha.dc.html",
+    "Notificacoes.dc.html",
+    "Privacidade.dc.html",
+    "PausarConta.dc.html",
+    "EncerrarConta.dc.html",
+    "CentralNotificacoes.dc.html",
+    "DetalheNota.dc.html",
+    "Ajuda.dc.html",
+    "Acessibilidade.dc.html",
+    "MainFacil.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "app",
+      "name": "App principal"
+    },
+    {
+      "id": "inicio",
+      "name": "Primeiro uso e acesso"
+    },
+    {
+      "id": "conta",
+      "name": "Minha conta e ajuda"
+    },
+    {
+      "id": "acess",
+      "name": "Acessibilidade"
+    }
+  ],
+  "title": "GasteMenos"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@gastemenos/tokens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "tokens.css",
+    "tailwind-preset.ts",
+    "src"
+  ],
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./tailwind-preset": "./tailwind-preset.ts"
+  },
+  "scripts": {
+    "build": "tsx src/build.ts",
+    "check": "tsx src/build.ts && tsx src/check.ts",
+    "test": "tsx src/build.ts && tsx src/check.ts",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "@types/node": "^22.10.5"
+  }
+}

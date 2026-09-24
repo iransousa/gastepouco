@@ -1,0 +1,468 @@
+// GasteMenos — modelo de dados inicial (PostgreSQL). Dinheiro em centavos (Int). Datas em UTC.
+// Escrito para Prisma 6. No Prisma 7, remova `url` do datasource e configure a conexão em prisma.config.ts.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountStatus {
+  ACTIVE
+  PAUSED
+  PENDING_DELETION
+}
+
+enum AuthProvider {
+  PASSWORD
+  GOOGLE
+  APPLE
+}
+
+enum ReceiptStatus {
+  PENDING
+  DONE
+  NEEDS_QR
+  PORTAL_UNAVAILABLE
+  PARSE_FAILED
+  REJECTED
+}
+
+enum PaymentMethod {
+  PIX
+  CREDITO
+  DEBITO
+  DINHEIRO
+  VALE
+  OUTRO
+}
+
+enum Theme {
+  SYSTEM
+  LIGHT
+  DARK
+  CONTRAST
+}
+
+enum TextSize {
+  NORMAL
+  GRANDE
+  MUITO_GRANDE
+}
+
+enum NotificationType {
+  PRICE_DROP
+  LIST_OFFER
+  SHOPPING_REMINDER
+  RANKING
+  LEVEL_UP
+  STREAK_RISK
+  WEEKLY_SUMMARY
+  SPONSORED
+  ACCOUNT
+}
+
+model User {
+  id               String        @id @default(cuid())
+  email            String        @unique
+  emailVerifiedAt  DateTime?
+  passwordHash     String?
+  name             String
+  rankingName      String
+  phone            String?
+  cep              String?
+  regionGeohash    String?       @db.VarChar(5)
+  cpfHash          String?       // hash + sal do CPF na nota; nunca o CPF em claro
+  avatarUrl        String?
+  inviteCode       String        @unique
+  invitedById      String?
+  invitedBy        User?         @relation("Invites", fields: [invitedById], references: [id])
+  invitees         User[]        @relation("Invites")
+  status           AccountStatus @default(ACTIVE)
+  pausedUntil      DateTime?
+  deletionAt       DateTime?
+  twoFactorEnabled Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  accounts      AuthAccount[]
+  sessions      Session[]
+  profile       ConsumptionProfile?
+  preferences   Preferences?
+  receipts      Receipt[]
+  lists         ShoppingList[]
+  points        PointsLedger[]
+  badges        UserBadge[]
+  notifications Notification[]
+  priceAlerts   PriceAlert[]
+  pushSubs      PushSubscription[]
+  friendsA      Friendship[]   @relation("FriendA")
+  friendsB      Friendship[]   @relation("FriendB")
+  exports       DataExport[]
+  consents      Consent[]
+}
+
+model AuthAccount {
+  id                String       @id @default(cuid())
+  userId            String
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider          AuthProvider
+  providerAccountId String
+  email             String?
+  createdAt         DateTime     @default(now())
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshHash String    @unique
+  deviceLabel String    // "Este celular", "Navegador no computador"
+  city        String?
+  lastSeenAt  DateTime  @default(now())
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model ConsumptionProfile {
+  userId           String   @id
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdSize    String   // "1" | "2" | "3" | "5"
+  storeTypes       String[] // super, atac, bairro, feira, app
+  frequency        String   // sem | quin | mes | falta
+  monthlySpendBand String   // a | b | c | d
+  priorities       String[] // até 3: preco, promo, marca, saude, perto
+  persona          String   // "Família Planejadora"
+  budgetCents      Int
+  updatedAt        DateTime @updatedAt
+}
+
+model Preferences {
+  userId          String   @id
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme           Theme    @default(SYSTEM)
+  textSize        TextSize @default(NORMAL)
+  highContrast    Boolean  @default(false)
+  easyMode        Boolean  @default(false)
+  readAloud       Boolean  @default(false)
+  reduceMotion    Boolean  @default(false)
+  vibrate         Boolean  @default(true)
+  quietStart      String   @default("22:00")
+  quietEnd        String   @default("08:00")
+  notifyPriceDrop Boolean  @default(true)
+  notifyListOffer Boolean  @default(true)
+  notifyReminder  Boolean  @default(true)
+  notifyRanking   Boolean  @default(true)
+  notifyStreak    Boolean  @default(true)
+  weeklyEmail     Boolean  @default(true)
+  notifySponsored Boolean  @default(false)
+  sharePrices     Boolean  @default(true)
+  showInRegion    Boolean  @default(true)
+  showName        Boolean  @default(true)
+  personalizeOffers Boolean @default(true)
+  sharePartners   Boolean  @default(false)
+  regionRadiusKm  Int      @default(5)
+  updatedAt       DateTime @updatedAt
+}
+
+model Consent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String   // terms_v1, privacy_v1, partners, marketing
+  granted   Boolean
+  createdAt DateTime @default(now())
+}
+
+model Store {
+  id        String   @id @default(cuid())
+  cnpj      String   @unique @db.Char(14)
+  name      String
+  address   String?
+  city      String?
+  uf        String   @db.Char(2)
+  lat       Float?
+  lng       Float?
+  geohash   String?  @db.VarChar(5)
+  createdAt DateTime @default(now())
+
+  receipts     Receipt[]
+  observations PriceObservation[]
+  offers       Offer[]
+
+  @@index([geohash])
+}
+
+model Receipt {
+  id             String         @id @default(cuid())
+  accessKey      String         @unique @db.Char(44)
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeId        String?
+  store          Store?         @relation(fields: [storeId], references: [id])
+  status         ReceiptStatus  @default(PENDING)
+  source         String         // qr | key | gallery
+  qrUrl          String?
+  issuedAt       DateTime?
+  totalCents     Int?
+  discountCents  Int?
+  paymentMethod  PaymentMethod?
+  savingsCents   Int?
+  pointsEligible Boolean        @default(true)
+  pointsAwarded  Int            @default(0)
+  failureReason  String?
+  rawStorageKey  String?        // HTML guardado para depuração (30 dias)
+  createdAt      DateTime       @default(now())
+  processedAt    DateTime?
+
+  items ReceiptItem[]
+
+  @@index([userId, issuedAt])
+}
+
+model ReceiptItem {
+  id             String   @id @default(cuid())
+  receiptId      String
+  receipt        Receipt  @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  productId      String?
+  product        Product? @relation(fields: [productId], references: [id])
+  rawDescription String
+  storeCode      String?
+  gtin           String?
+  quantity       Decimal  @db.Decimal(12, 3)
+  unit           String
+  unitPriceCents Int
+  totalCents     Int
+  regionAvgCents Int?     // média da região no momento da leitura
+
+  observation PriceObservation?
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  slug     String    @unique // mercearia, bebidas, hortifruti, laticinios, carnes, limpeza, higiene, padaria, outros
+  name     String
+  products Product[]
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  gtin           String?  @unique
+  normalizedName String
+  displayName    String   // "Café torrado e moído 500g"
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id])
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+
+  aliases      ProductAlias[]
+  items        ReceiptItem[]
+  observations PriceObservation[]
+  stats        PriceStat[]
+  listItems    ShoppingListItem[]
+  alerts       PriceAlert[]
+  offers       Offer[]
+
+  @@index([normalizedName])
+}
+
+model ProductAlias {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  storeCnpj String? @db.Char(14)
+  storeCode String?
+  rawDescriptionNormalized String
+
+  @@unique([storeCnpj, storeCode, rawDescriptionNormalized])
+}
+
+model PriceObservation {
+  id            String      @id @default(cuid())
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id])
+  storeId       String
+  store         Store       @relation(fields: [storeId], references: [id])
+  receiptItemId String      @unique
+  receiptItem   ReceiptItem @relation(fields: [receiptItemId], references: [id], onDelete: Cascade)
+  userHash      String      // hash do userId para contar pessoas distintas sem ligar à conta
+  unitPriceCents Int
+  observedAt    DateTime
+  geohash       String      @db.VarChar(5)
+
+  @@index([productId, geohash, observedAt])
+}
+
+model PriceStat {
+  id           String   @id @default(cuid())
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id])
+  geohash      String   @db.VarChar(5)
+  period       String   // "day:2026-09-24" | "month:2026-09"
+  avgCents     Int      // média aparada
+  minCents     Int
+  maxCents     Int
+  minStoreId   String?
+  receiptCount Int
+  userCount    Int
+  updatedAt    DateTime @updatedAt
+
+  @@unique([productId, geohash, period])
+}
+
+model ShoppingList {
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String             @default("Lista da semana")
+  createdAt DateTime           @default(now())
+  items     ShoppingListItem[]
+}
+
+model ShoppingListItem {
+  id                String       @id @default(cuid())
+  listId            String
+  list              ShoppingList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  productId         String?
+  product           Product?     @relation(fields: [productId], references: [id])
+  label             String
+  quantity          Decimal      @db.Decimal(12, 3) @default(1)
+  unit              String       @default("un.")
+  estimatedCents    Int?
+  repurchaseDays    Int?
+  checked           Boolean      @default(false)
+  suggested         Boolean      @default(false)
+  position          Int          @default(0)
+}
+
+model PointsLedger {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
+  reason    String   // WELCOME, PROFILE, RECEIPT, NEW_STORE, WEEK_STREAK, OFFER_CONFIRM, INVITE, REVERSAL
+  refId     String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, reason, refId])
+  @@index([userId, createdAt])
+}
+
+model Badge {
+  id          String      @id // first_receipt, smart_cart, on_fire, explorer, saved_100, promo_hunter, price_detective, ambassador, month_legend
+  name        String
+  description String
+  target      Int
+  users       UserBadge[]
+}
+
+model UserBadge {
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId    String
+  badge      Badge     @relation(fields: [badgeId], references: [id])
+  progress   Int       @default(0)
+  unlockedAt DateTime?
+
+  @@id([userId, badgeId])
+}
+
+model Friendship {
+  userAId   String
+  userA     User     @relation("FriendA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId   String
+  userB     User     @relation("FriendB", fields: [userBId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userAId, userBId])
+}
+
+model RankingSnapshot {
+  id        String   @id @default(cuid())
+  month     String   // "2026-09"
+  scope     String   // friends:<userId> | region:<geohash>
+  category  String   // savings | purchases | points
+  entries   Json     // [{ userId, rank, value }]
+  closed    Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+
+  @@unique([month, scope, category])
+}
+
+model Partner {
+  id        String   @id @default(cuid())
+  name      String
+  cnpj      String?  @db.Char(14)
+  contact   String?
+  active    Boolean  @default(true)
+  offers    Offer[]
+}
+
+model Offer {
+  id          String    @id @default(cuid())
+  partnerId   String?
+  partner     Partner?  @relation(fields: [partnerId], references: [id])
+  sponsored   Boolean   @default(false)
+  title       String
+  description String?
+  productId   String?
+  product     Product?  @relation(fields: [productId], references: [id])
+  storeId     String?
+  store       Store?    @relation(fields: [storeId], references: [id])
+  priceCents  Int?
+  geohashes   String[]
+  startsAt    DateTime
+  endsAt      DateTime
+  confirmations Int     @default(0)
+  impressions Int       @default(0)
+  clicks      Int       @default(0)
+}
+
+model PriceAlert {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  targetCents Int?
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  href      String
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+}
+
+model DataExport {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      String    // PENDING | READY | EXPIRED
+  fileKey     String?
+  requestedAt DateTime  @default(now())
+  readyAt     DateTime?
+}

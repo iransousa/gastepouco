@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Histórico de preço</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button{font-family:inherit}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes line{from{stroke-dashoffset:420}to{stroke-dashoffset:0}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes blip{0%{r:6;opacity:.6}100%{r:16;opacity:0}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box">
+<main style="position: absolute; top: 0; left: 0; right: 0; bottom: 92px; overflow-y: auto; padding: 16px 20px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<a href="Gastos.dc.html" aria-label="Voltar" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a>
+<span style="font-size: 15px; font-weight: 700">Histórico de preço</span>
+<button aria-label="Criar alerta de preço" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg></button>
+</header>
+
+<div style="display: flex; align-items: center; gap: 14px">
+<div style="width: 64px; height: 64px; border-radius: 18px; background: #FFE4D6; border: 1px dashed #E0A98C; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #7A2E0B; flex-shrink: 0">foto</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="font-size: 21px; font-weight: 800; line-height: 1.15">Café torrado e moído 500g</h1>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 13px; color: #47524C"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>Asa Norte · raio de 5 km</span>
+</div>
+</div>
+
+<section style="background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 12px; animation: rise .5s ease both">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<h2 style="font-size: 16px; font-weight: 800">Preço médio na região</h2>
+<div role="group" aria-label="Intervalo" style="display: flex; gap: 2px; background: #F0EEE6; border-radius: 10px; padding: 3px">
+<button aria-pressed="false" style="height: 44px; padding: 0 9px; border: 0; border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: #14201A; cursor: pointer">30d</button>
+<button aria-pressed="true" style="height: 44px; padding: 0 9px; border: 0; border-radius: 8px; background: #14201A; font-size: 13px; font-weight: 700; color: #F5F3EC; cursor: pointer">6m</button>
+<button aria-pressed="false" style="height: 44px; padding: 0 9px; border: 0; border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: #14201A; cursor: pointer">1a</button>
+</div>
+</div>
+<div style="position: relative; height: 150px">
+<svg width="316" height="140" viewBox="0 0 342 140" style="display: block; width: 100%; overflow: visible" aria-label="Preço médio caiu de R$ 24,90 em junho para R$ 21,40 em setembro" role="img">
+<path d="M12 51.3 L75.6 39.3 L139.2 24.7 L202.8 44.7 L266.4 62 L330 71.3 L330 130 L12 130 Z" fill="#ECE8FF" style="animation: fadein 1.2s .6s ease both"></path>
+<path d="M12 51.3 L75.6 39.3 L139.2 24.7 L202.8 44.7 L266.4 62 L330 71.3" fill="none" stroke="#6B5BE0" style="stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 420; animation: line 1.4s ease-out both"></path>
+<circle cx="139.2" cy="30" r="6" fill="#F26B3A" stroke="#FFFFFF" style="stroke-width: 2; animation: fadein .4s 1.2s both"></circle>
+<circle cx="266.4" cy="78" r="6" fill="#F26B3A" stroke="#FFFFFF" style="stroke-width: 2; animation: fadein .4s 1.3s both"></circle>
+<circle cx="330" cy="99.3" r="6" fill="#F26B3A" style="animation: blip 1.6s 1.6s ease-out infinite"></circle>
+<circle cx="330" cy="99.3" r="6" fill="#F26B3A" stroke="#FFFFFF" style="stroke-width: 2; animation: fadein .4s 1.4s both"></circle>
+<circle cx="330" cy="71.3" r="5" fill="#6B5BE0" stroke="#FFFFFF" style="stroke-width: 2"></circle>
+</svg>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); font-size: 13px; color: #47524C; text-align: center; margin-top: -4px"><span>abr</span><span>mai</span><span>jun</span><span>jul</span><span>ago</span><span>set</span></div>
+</div>
+<div style="display: flex; gap: 14px; font-size: 13px; color: #47524C">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 3px; border-radius: 2px; background: #6B5BE0"></span>Média da região</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 50%; background: #F26B3A"></span>O que você pagou</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 14px; background: #F5F3EC"><span style="font-size: 13px; color: #47524C">Média hoje</span><span style="font-size: 16px; font-weight: 800">R$ 21,40</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 14px; background: #FFE4D6"><span style="font-size: 13px; color: #7A2E0B">Você pagou</span><span style="font-size: 16px; font-weight: 800">R$ 19,30</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 14px; background: #F5F3EC"><span style="font-size: 13px; color: #47524C">Pico (jun)</span><span style="font-size: 16px; font-weight: 800">R$ 24,90</span></div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px; animation: rise .5s .15s ease both">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 style="font-size: 16px; font-weight: 800">Onde está mais barato</h2><span style="font-size: 13px; color: #47524C">412 notas · 186 pessoas</span></div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #0E4D3A; color: #F5F3EC; border-radius: 18px">
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1"><span style="font-size: 15px; font-weight: 700">Atacarejo Planalto</span><span style="font-size: 13px; color: #CFE3D9">1,2 km · atualizado há 2 h</span></div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px"><span style="font-size: 17px; font-weight: 800">R$ 17,98</span><span style="font-size: 13px; font-weight: 800; color: #14201A; background: #D4F36B; padding: 2px 8px; border-radius: 999px">16% abaixo</span></div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 18px">
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1"><span style="font-size: 15px; font-weight: 600">Supermercado Vila Nova</span><span style="font-size: 13px; color: #47524C">0,8 km · atualizado há 1 dia</span></div>
+<span style="font-size: 16px; font-weight: 700">R$ 19,30</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 18px">
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1"><span style="font-size: 15px; font-weight: 600">Mercado Bom Dia</span><span style="font-size: 13px; color: #47524C">2,5 km · atualizado há 3 h</span></div>
+<span style="font-size: 16px; font-weight: 700">R$ 22,49</span>
+</div>
+</section>
+</main>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 20px 22px; background: #F5F3EC; border-top: 1px solid #E7E3D8; display: flex; gap: 10px; box-sizing: border-box">
+<a href="Lista.dc.html" style="flex-grow: 1; height: 54px; border-radius: 16px; background: #0E4D3A; color: #F5F3EC; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 700; text-decoration: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Adicionar à lista</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

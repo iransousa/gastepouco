@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Perfil de consumo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button{font-family:inherit}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes tick{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes chosen{0%{transform:scale(1)}40%{transform:scale(.97)}100%{transform:scale(1)}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box; display: flex; flex-direction: column; padding: 16px 24px 28px; gap: 16px">
+
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<sc-if value="{{ isFirst }}" hint-placeholder-val="{{ true }}"><a href="CriarConta.dc.html" aria-label="Voltar" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a></sc-if>
+<sc-if value="{{ notFirst }}" hint-placeholder-val="{{ false }}"><button type="button" aria-label="Pergunta anterior" onClick="{{ back }}" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button></sc-if>
+<div aria-hidden="true" style="flex-grow: 1; display: flex; gap: 5px">
+<sc-for list="{{ segs }}" as="s" hint-placeholder-count="5">
+<sc-if value="{{ s.on }}" hint-placeholder-val="{{ false }}"><span style="flex: 1 1 0; height: 6px; border-radius: 3px; background: #0E4D3A"></span></sc-if>
+<sc-if value="{{ s.off }}" hint-placeholder-val="{{ true }}"><span style="flex: 1 1 0; height: 6px; border-radius: 3px; background: #D8D2C2"></span></sc-if>
+</sc-for>
+</div>
+<button type="button" onClick="{{ skip }}" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #47524C; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0">Pular</button>
+</header>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="font-size: 13px; font-weight: 800; letter-spacing: .08em; color: #0E4D3A">{{ stepLabel }}</span>
+<span style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: #ECE8FF; color: #3F31B0; font-size: 13px; font-weight: 800"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"></path></svg>+100 pontos ao completar</span>
+</div>
+<h1 style="font-size: 28px; font-weight: 800; line-height: 1.1">{{ q.title }}</h1>
+<p style="margin: 0; font-size: 14px; line-height: 1.45; color: #4A554F">{{ q.hint }}</p>
+</section>
+
+<div role="group" aria-label="{{ q.title }}" style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{ options }}" as="o" hint-placeholder-count="4">
+<sc-if value="{{ o.on }}" hint-placeholder-val="{{ false }}">
+<button type="button" aria-pressed="true" onClick="{{ o.pick }}" style="width: 100%; min-height: 60px; display: flex; align-items: center; gap: 14px; padding: 8px 14px 8px 10px; border-radius: 18px; border: 2px solid #0E4D3A; background: #E4F5A6; color: #14201A; text-align: left; cursor: pointer; animation: chosen .25s ease-out">
+<span style="width: 42px; height: 42px; border-radius: 13px; background: #0E4D3A; color: #D4F36B; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="{{ o.d }}"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; flex-grow: 1"><span style="font-size: 16px; font-weight: 700">{{ o.label }}</span><sc-if value="{{ o.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #2C3A1A">{{ o.sub }}</span></sc-if></span>
+<span style="width: 26px; height: 26px; border-radius: 50%; background: #0E4D3A; color: #D4F36B; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: tick .3s ease-out both"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+</button>
+</sc-if>
+<sc-if value="{{ o.off }}" hint-placeholder-val="{{ true }}">
+<button type="button" aria-pressed="false" onClick="{{ o.pick }}" style="width: 100%; min-height: 60px; display: flex; align-items: center; gap: 14px; padding: 8px 14px 8px 10px; border-radius: 18px; border: 2px solid #E2DDD0; background: #FFFFFF; color: #14201A; text-align: left; cursor: pointer">
+<span style="width: 42px; height: 42px; border-radius: 13px; background: #F0EEE6; color: #14201A; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="{{ o.d }}"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; flex-grow: 1"><span style="font-size: 16px; font-weight: 600">{{ o.label }}</span><sc-if value="{{ o.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #47524C">{{ o.sub }}</span></sc-if></span>
+<sc-if value="{{ o.multi }}" hint-placeholder-val="{{ false }}"><span style="width: 26px; height: 26px; border-radius: 8px; border: 2px solid #A9A290; box-sizing: border-box; flex-shrink: 0"></span></sc-if>
+<sc-if value="{{ o.single }}" hint-placeholder-val="{{ true }}"><span style="width: 26px; height: 26px; border-radius: 50%; border: 2px solid #A9A290; box-sizing: border-box; flex-shrink: 0"></span></sc-if>
+</button>
+</sc-if>
+</sc-for>
+</div>
+
+<div style="margin-top: auto">
+<sc-if value="{{ canNext }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ next }}" style="width: 100%; height: 56px; border-radius: 18px; border: 0; background: #0E4D3A; color: #F5F3EC; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer">Continuar<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></sc-if>
+<sc-if value="{{ canFinish }}" hint-placeholder-val="{{ false }}"><a href="PerfilPronto.dc.html" style="height: 56px; border-radius: 18px; background: #0E4D3A; color: #F5F3EC; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none">Ver meu perfil<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></sc-if>
+<sc-if value="{{ blocked }}" hint-placeholder-val="{{ true }}"><button type="button" disabled style="width: 100%; height: 56px; border-radius: 18px; border: 0; background: #D8D2C2; color: #47524C; font-size: 16px; font-weight: 700">{{ blockedLabel }}</button></sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startStep":{"editor":"enum","options":[1,2,3,4,5],"default":1,"section":"Protótipo"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: null, answers: {} };
+  }
+  renderVals() {
+    const USER = 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 1 0 0-8';
+    const USERS = 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 1 0 0-8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8';
+    const HOME = 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z';
+    const HOME2 = 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM9 21v-6h6v6';
+    const CAL = 'M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 10h18M8 2v4M16 2v4';
+    const WALLET = 'M3 7a2 2 0 0 1 2-2h13v4M3 7v10a2 2 0 0 0 2 2h16v-5M3 7h16a2 2 0 0 1 2 2v3M17 12.5a1.5 1.5 0 1 0 0 3h4v-3z';
+    const QS = [
+      { key: 'pessoas', multi: false, title: 'Para quantas pessoas você faz as compras?', hint: 'Assim comparamos seus gastos com casas parecidas com a sua.', options: [
+        { id: '1', label: 'Só eu', sub: '1 pessoa', d: USER },
+        { id: '2', label: 'Casal', sub: '2 pessoas', d: USERS },
+        { id: '3', label: 'Família', sub: '3 a 4 pessoas', d: HOME },
+        { id: '5', label: 'Casa cheia', sub: '5 pessoas ou mais', d: HOME2 }
+      ] },
+      { key: 'onde', multi: true, title: 'Onde você costuma comprar?', hint: 'Escolha quantos quiser. Vamos priorizar ofertas desses lugares.', options: [
+        { id: 'super', label: 'Supermercado', d: 'M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L21 8H6M9 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3M18 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3' },
+        { id: 'atac', label: 'Atacarejo', d: 'M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8' },
+        { id: 'bairro', label: 'Mercadinho do bairro', d: 'M3 9h18l-1-5H4zM5 9v11h14V9M10 20v-6h4v6' },
+        { id: 'feira', label: 'Feira ou hortifrúti', d: 'M11 20A7 7 0 0 1 4 13c0-5 4-9 16-9 0 12-4 16-9 16zM4 20l8-8' },
+        { id: 'app', label: 'Aplicativo de entrega', d: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2' }
+      ] },
+      { key: 'freq', multi: false, title: 'Com que frequência você vai ao mercado?', hint: 'Usamos isso para lembrar você da lista na hora certa.', options: [
+        { id: 'sem', label: 'Toda semana', d: CAL },
+        { id: 'quin', label: 'A cada 15 dias', d: CAL },
+        { id: 'mes', label: 'Uma compra grande por mês', d: CAL },
+        { id: 'falta', label: 'Só quando falta algo', d: CAL }
+      ] },
+      { key: 'gasto', multi: false, title: 'Quanto você gasta por mês com mercado?', hint: 'Serve para sugerir um orçamento. Só você vê essa resposta.', options: [
+        { id: 'a', label: 'Até R$ 500', d: WALLET },
+        { id: 'b', label: 'De R$ 500 a R$ 1.000', d: WALLET },
+        { id: 'c', label: 'De R$ 1.000 a R$ 2.000', d: WALLET },
+        { id: 'd', label: 'Mais de R$ 2.000', d: WALLET }
+      ] },
+      { key: 'prior', multi: true, max: 3, title: 'O que mais pesa na sua escolha?', hint: 'Escolha até 3. Isso define quais ofertas aparecem primeiro.', options: [
+        { id: 'preco', label: 'Preço mais baixo', d: 'M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3' },
+        { id: 'promo', label: 'Promoções', d: 'm12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z' },
+        { id: 'marca', label: 'Marcas que eu gosto', d: 'M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z' },
+        { id: 'saude', label: 'Comida saudável', d: 'M11 20A7 7 0 0 1 4 13c0-5 4-9 16-9 0 12-4 16-9 16zM4 20l8-8' },
+        { id: 'perto', label: 'Mercado perto de casa', d: 'M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12zM12 6.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 1 0 0-5' }
+      ] }
+    ];
+    const total = QS.length;
+    const start = Math.min(Math.max(parseInt(this.props.startStep ?? 1, 10) || 1, 1), total) - 1;
+    const step = this.state.step === null ? start : this.state.step;
+    const q = QS[step];
+    const answers = this.state.answers;
+    const cur = answers[q.key] || (q.multi ? [] : null);
+    const setAnswer = (val) => {
+      const next = Object.assign({}, this.state.answers);
+      next[q.key] = val;
+      this.setState({ answers: next, step: step });
+    };
+    const options = q.options.map((o) => {
+      const on = q.multi ? cur.indexOf(o.id) >= 0 : cur === o.id;
+      return {
+        label: o.label, sub: o.sub || '', hasSub: !!o.sub, d: o.d,
+        on: on, off: !on, multi: q.multi, single: !q.multi,
+        pick: () => {
+          if (!q.multi) { setAnswer(o.id); return; }
+          let list = cur.slice();
+          if (on) list = list.filter((x) => x !== o.id);
+          else if (!q.max || list.length < q.max) list.push(o.id);
+          setAnswer(list);
+        }
+      };
+    });
+    const answered = q.multi ? cur.length > 0 : cur !== null;
+    const isLast = step === total - 1;
+    const go = (n) => this.setState({ step: Math.min(Math.max(n, 0), total - 1) });
+    return {
+      q: q,
+      options: options,
+      stepLabel: 'PERGUNTA ' + (step + 1) + ' DE ' + total,
+      segs: QS.map((x, i) => ({ on: i <= step, off: i > step })),
+      isFirst: step === 0,
+      notFirst: step > 0,
+      back: () => go(step - 1),
+      next: () => go(step + 1),
+      skip: () => go(step + 1),
+      canNext: answered && !isLast,
+      canFinish: answered && isLast,
+      blocked: !answered,
+      blockedLabel: q.multi ? 'Escolha pelo menos uma opção' : 'Escolha uma opção'
+    };
+  }
+}
+</script>
+</body>
+</html>

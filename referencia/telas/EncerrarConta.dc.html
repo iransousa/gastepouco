@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Encerrar conta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button,input{font-family:inherit}
+input:focus{outline:none;border-color:#9A3412 !important;box-shadow:0 0 0 4px #FFE4D6}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 1080px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box; padding: 16px 20px 28px; display: flex; flex-direction: column; gap: 18px">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<a href="Perfil.dc.html" aria-label="Voltar" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a>
+<h1 style="font-size: 20px; font-weight: 800">Encerrar conta</h1>
+<span style="width: 44px"></span>
+</header>
+
+<sc-if value="{{ open }}" hint-placeholder-val="{{ true }}">
+<section style="display: flex; flex-direction: column; gap: 6px; animation: rise .5s ease both">
+<h2 style="font-size: 26px; font-weight: 800; line-height: 1.1">Que pena ver você ir</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.45; color: #4A554F">Ao encerrar, apagamos sua conta e o que está ligado a você:</p>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 6px; border-radius: 16px; background: #FFE4D6; text-align: center"><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; color: #7A2E0B">128</span><span style="font-size: 13px; color: #7A2E0B">notas</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 6px; border-radius: 16px; background: #FFE4D6; text-align: center"><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; color: #7A2E0B">Nv 12</span><span style="font-size: 13px; color: #7A2E0B">e 5 selos</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 6px; border-radius: 16px; background: #FFE4D6; text-align: center"><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; color: #7A2E0B">3</span><span style="font-size: 13px; color: #7A2E0B">listas</span></div>
+</div>
+<p style="margin: -6px 0 0; font-size: 13px; line-height: 1.4; color: #47524C">Os preços que você já compartilhou continuam na base de forma anônima, sem ligação com você.</p>
+
+<a href="PausarConta.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 20px; background: #ECE8FF; color: #14201A; text-decoration: none">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #3F31B0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.6; stroke-linecap: round" aria-hidden="true"><path d="M9 5v14M15 5v14"></path></svg></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 700">Prefere só dar um tempo?</span><span style="font-size: 13px; color: #2F2670">Pause a conta e não perca nada</span></span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+</a>
+
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="font-size: 14px; font-weight: 700; margin-bottom: 8px">Por que está saindo? <span style="font-weight: 500; color: #47524C">(opcional)</span></legend>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{ reasons }}" as="r" hint-placeholder-count="5">
+<sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}"><button type="button" aria-pressed="true" onClick="{{ r.pick }}" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 2px solid #14201A; background: #14201A; color: #F5F3EC; font-size: 13px; font-weight: 700; cursor: pointer">{{ r.label }}</button></sc-if>
+<sc-if value="{{ r.off }}" hint-placeholder-val="{{ true }}"><button type="button" aria-pressed="false" onClick="{{ r.pick }}" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 2px solid #D8D2C2; background: #FFFFFF; color: #14201A; font-size: 13px; font-weight: 600; cursor: pointer">{{ r.label }}</button></sc-if>
+</sc-for>
+</div>
+</fieldset>
+
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700">Para confirmar, digite ENCERRAR
+<input type="text" value="{{ typed }}" onChange="{{ onType }}" autocomplete="off" autocapitalize="characters" placeholder="ENCERRAR" style="height: 52px; padding: 0 16px; border-radius: 14px; border: 1.5px solid #D8D2C2; background: #FFFFFF; font-size: 16px; font-weight: 700; letter-spacing: .08em; color: #14201A; box-sizing: border-box">
+</label>
+
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+<button type="button" style="height: 48px; border-radius: 16px; border: 1.5px solid #D8D2C2; background: #FFFFFF; color: #14201A; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"></path></svg>Baixar meus dados antes</button>
+<sc-if value="{{ canClose }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ close }}" style="width: 100%; height: 56px; border-radius: 18px; border: 0; background: #9A3412; color: #FFFFFF; font-size: 16px; font-weight: 700; cursor: pointer">Encerrar minha conta</button></sc-if>
+<sc-if value="{{ cannot }}" hint-placeholder-val="{{ true }}"><button type="button" disabled style="width: 100%; height: 56px; border-radius: 18px; border: 0; background: #D8D2C2; color: #47524C; font-size: 16px; font-weight: 700">Encerrar minha conta</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ closed }}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" style="align-self: center; margin-top: 70px; width: 110px; height: 110px; border-radius: 36px; background: #FFE4D6; color: #9A3412; display: flex; align-items: center; justify-content: center; animation: pop .6s ease-out both"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2"></path></svg></div>
+<section style="display: flex; flex-direction: column; gap: 8px; text-align: center">
+<h2 style="font-size: 28px; font-weight: 800">Pedido recebido</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #4A554F">Sua conta será apagada em 30 dias, em <strong style="color: #14201A">24 de outubro</strong>. Mudou de ideia? Entre de novo até lá e tudo volta.</p>
+<p style="margin: 0; font-size: 13px; color: #47524C">Enviamos a confirmação para camila.alves@email.com.</p>
+</section>
+<a href="Onboarding1.dc.html" style="margin-top: auto; height: 56px; border-radius: 18px; background: #14201A; color: #F5F3EC; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; text-decoration: none">Entendi</a>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1080}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { reason: null, typed: '', closed: false };
+  }
+  renderVals() {
+    const list = ['Não uso mais', 'Privacidade', 'Muitas notificações', 'Achei outro app', 'Outro motivo'];
+    const ok = this.state.typed.trim().toUpperCase() === 'ENCERRAR';
+    return {
+      reasons: list.map((l) => ({ label: l, on: this.state.reason === l, off: this.state.reason !== l, pick: () => this.setState({ reason: this.state.reason === l ? null : l }) })),
+      typed: this.state.typed,
+      onType: (e) => this.setState({ typed: e.target.value }),
+      canClose: ok, cannot: !ok,
+      open: !this.state.closed, closed: this.state.closed,
+      close: () => this.setState({ closed: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

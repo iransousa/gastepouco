@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Início</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button{font-family:inherit}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fill{from{width:0}}
+@keyframes pulse{0%,100%{box-shadow:0 8px 20px rgba(14,77,58,.35),0 0 0 0 rgba(212,243,107,.8)}50%{box-shadow:0 8px 20px rgba(14,77,58,.35),0 0 0 12px rgba(212,243,107,0)}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-6deg)}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box">
+<main style="position: absolute; top: 0; left: 0; right: 0; bottom: 84px; overflow-y: auto; padding: 20px 20px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="Perfil.dc.html" aria-label="Meu perfil" style="position: relative; width: 48px; height: 48px; border-radius: 16px; background: #ECE8FF; color: #3F31B0; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 18px; text-decoration: none">CA<span style="position: absolute; right: -6px; bottom: -6px; min-width: 24px; height: 24px; padding: 0 5px; border-radius: 12px; background: #F26B3A; color: #14201A; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #F5F3EC; box-sizing: border-box">12</span></a>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #47524C">Boa tarde,</span>
+<h1 style="font-size: 22px; font-weight: 800">Camila</h1>
+</div>
+</div>
+<a href="CentralNotificacoes.dc.html" aria-label="Notificações, 3 novas" style="position: relative; width: 44px; height: 44px; border-radius: 14px; border: 1px solid #E2DDD0; background: #FFFFFF; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: wiggle 2.8s ease-in-out 3" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg>
+<span style="position: absolute; top: 9px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: #F26B3A; border: 2px solid #FFFFFF"></span>
+</a>
+</header>
+
+<section style="position: relative; overflow: hidden; background: #0E4D3A; color: #F5F3EC; border-radius: 28px; padding: 20px; display: flex; flex-direction: column; gap: 14px; animation: rise .5s ease both">
+<div style="position: absolute; right: -50px; top: -60px; width: 170px; height: 170px; border-radius: 50%; background: #1A6A51"></div>
+<div style="position: absolute; right: 40px; top: 70px; width: 46px; height: 46px; border-radius: 50%; background: #D4F36B; opacity: .9"></div>
+<div style="position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="font-size: 14px; font-weight: 600; color: #CFE3D9">Gastos de setembro</span>
+<span style="display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 999px; background: #D4F36B; color: #14201A; font-size: 13px; font-weight: 700"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m3 7 6 6 4-4 8 8"></path><path d="M21 11v6h-6"></path></svg>18% menos que agosto</span>
+</div>
+<div style="position: relative; font-family: 'Bricolage Grotesque', sans-serif; font-size: 46px; font-weight: 800; letter-spacing: -1.5px; line-height: 1">R$ 1.284<span style="font-size: 26px">,60</span></div>
+<div style="position: relative; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 10px; border-radius: 5px; background: #1F6B53; overflow: hidden"><div style="width: 80%; height: 100%; border-radius: 5px; background: #D4F36B; animation: fill 1.4s cubic-bezier(.2,.8,.2,1) both"></div></div>
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #CFE3D9"><span>Orçamento R$ 1.600,00</span><span style="font-weight: 700; color: #F5F3EC">Sobram R$ 315,40</span></div>
+</div>
+</section>
+
+<a href="Conquistas.dc.html" style="text-decoration: none; color: #14201A; background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 24px; padding: 14px 16px; display: flex; gap: 14px; align-items: center; animation: rise .5s .1s ease both">
+<div style="position: relative; width: 64px; height: 64px; flex-shrink: 0">
+<svg width="64" height="64" viewBox="0 0 64 64" style="transform: rotate(-90deg)" aria-hidden="true"><circle cx="32" cy="32" r="27" fill="none" stroke="#ECE8FF" style="stroke-width: 7"></circle><circle cx="32" cy="32" r="27" fill="none" stroke="#6B5BE0" style="stroke-width: 7; stroke-linecap: round; stroke-dasharray: 156 169.6"></circle></svg>
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1"><span style="font-size: 13px; font-weight: 700; color: #3F31B0">NÍVEL</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; color: #3F31B0">12</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 7px; flex-grow: 1">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 17px; font-weight: 800">Caçador de Ofertas</span>
+<span style="display: flex; align-items: center; gap: 3px; font-size: 13px; font-weight: 700; color: #9A3412"><svg width="15" height="15" viewBox="0 0 24 24" fill="#F26B3A" stroke="#F26B3A" style="stroke-width: 1.5; stroke-linejoin: round" aria-hidden="true"><path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-9-1 2-2 3-4 3 0-2 0-4-2-6-1 4-4 6-4 11 0 5 3 8 7 8z"></path></svg>5 semanas</span>
+</div>
+<div style="height: 8px; border-radius: 4px; background: #ECE8FF; overflow: hidden"><div style="width: 92%; height: 100%; border-radius: 4px; background: #6B5BE0; animation: fill 1.6s .3s cubic-bezier(.2,.8,.2,1) both"></div></div>
+<span style="font-size: 13px; color: #47524C">460 / 500 pontos · <strong style="color: #3F31B0">falta 1 nota</strong> para o nível 13</span>
+</div>
+</a>
+
+<nav aria-label="Atalhos" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; animation: rise .5s .2s ease both">
+<a href="Lista.dc.html" style="display: flex; flex-direction: column; gap: 10px; padding: 14px 12px; min-height: 92px; box-sizing: border-box; border-radius: 20px; background: #E4F5A6; color: #14201A; text-decoration: none">
+<span style="width: 36px; height: 36px; border-radius: 12px; background: #14201A; color: #D4F36B; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"></path><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"></path></svg></span>
+<span style="font-size: 13px; font-weight: 700; line-height: 1.2">Lista de compras</span>
+</a>
+<a href="Precos.dc.html" style="display: flex; flex-direction: column; gap: 10px; padding: 14px 12px; min-height: 92px; box-sizing: border-box; border-radius: 20px; background: #ECE8FF; color: #14201A; text-decoration: none">
+<span style="width: 36px; height: 36px; border-radius: 12px; background: #3F31B0; color: #ECE8FF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M3 3v18h18"></path><path d="m7 14 4-4 3 3 5-6"></path></svg></span>
+<span style="font-size: 13px; font-weight: 700; line-height: 1.2">Preços na região</span>
+</a>
+<a href="Ofertas.dc.html" style="display: flex; flex-direction: column; gap: 10px; padding: 14px 12px; min-height: 92px; box-sizing: border-box; border-radius: 20px; background: #FFE4D6; color: #14201A; text-decoration: none">
+<span style="width: 36px; height: 36px; border-radius: 12px; background: #F26B3A; color: #14201A; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg></span>
+<span style="font-size: 13px; font-weight: 700; line-height: 1.2">Ofertas perto de você</span>
+</a>
+</nav>
+
+<section style="display: flex; flex-direction: column; gap: 10px; animation: rise .5s .3s ease both">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h2 style="font-size: 18px; font-weight: 800">Últimas notas</h2>
+<a href="Gastos.dc.html" style="font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 0">Ver análise</a>
+</div>
+<a href="DetalheNota.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 18px; text-decoration: none; color: #14201A">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #F5F3EC; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><circle cx="9" cy="20" r="1.5"></circle><circle cx="18" cy="20" r="1.5"></circle><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L21 8H6"></path></svg></span>
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1"><span style="font-size: 15px; font-weight: 600">Padaria Pão Dourado</span><span style="font-size: 13px; color: #47524C">20 set · 6 itens</span></div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px"><span style="font-size: 15px; font-weight: 700">R$ 38,90</span><span style="font-size: 13px; font-weight: 800; color: #3F31B0; background: #ECE8FF; padding: 2px 8px; border-radius: 999px">+60 pontos</span></div>
+</a>
+<a href="DetalheNota.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #ECE8DC; border-radius: 18px; text-decoration: none; color: #14201A">
+<span style="width: 40px; height: 40px; border-radius: 12px; background: #F5F3EC; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><circle cx="9" cy="20" r="1.5"></circle><circle cx="18" cy="20" r="1.5"></circle><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L21 8H6"></path></svg></span>
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1"><span style="font-size: 15px; font-weight: 600">Atacarejo Planalto</span><span style="font-size: 13px; color: #47524C">18 set · 41 itens</span></div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px"><span style="font-size: 15px; font-weight: 700">R$ 342,15</span><span style="font-size: 13px; font-weight: 800; color: #3F31B0; background: #ECE8FF; padding: 2px 8px; border-radius: 999px">+60 pontos</span></div>
+</a>
+</section>
+</main>
+
+<nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: #FFFFFF; border-top: 1px solid #E7E3D8; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; padding: 8px 6px 0; box-sizing: border-box">
+<a href="Main.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #0E4D3A; font-size: 13px; font-weight: 800"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg><span>Início</span></a>
+<a href="Gastos.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9v9z"></path><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"></path></svg><span>Gastos</span></a>
+<a href="Escanear.dc.html" style="justify-self: center; margin-top: -28px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: #0E4D3A; font-size: 13px; font-weight: 800"><span style="width: 64px; height: 64px; border-radius: 22px; background: #0E4D3A; color: #D4F36B; display: flex; align-items: center; justify-content: center; animation: pulse 2.4s ease-in-out infinite"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"></path><path d="M7 12h10"></path></svg></span><span>Ler nota</span></a>
+<a href="Ofertas.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg><span>Ofertas</span></a>
+<a href="Ranking.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"></path></svg><span>Ranking</span></a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

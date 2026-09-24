@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Lista de compras</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button{font-family:inherit}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes tick{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{box-shadow:0 8px 20px rgba(14,77,58,.35),0 0 0 0 rgba(212,243,107,.8)}50%{box-shadow:0 8px 20px rgba(14,77,58,.35),0 0 0 12px rgba(212,243,107,0)}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box">
+<main style="position: absolute; top: 0; left: 0; right: 0; bottom: 84px; overflow-y: auto; padding: 18px 20px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+
+<header style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<div style="display: flex; align-items: center; gap: 10px">
+<a href="Main.dc.html" aria-label="Voltar" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column; gap: 1px"><h1 style="font-size: 24px; font-weight: 800">Lista da semana</h1><span style="font-size: 13px; color: #47524C">Montada com suas últimas 4 compras</span></div>
+</div>
+<button aria-label="Adicionar item" style="width: 44px; height: 44px; border-radius: 14px; border: 0; background: #14201A; color: #D4F36B; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.6; stroke-linecap: round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+</header>
+
+<section style="background: #0E4D3A; color: #F5F3EC; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 12px; animation: rise .5s ease both">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 8px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #CFE3D9">Estimativa</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: 800; line-height: 1">R$ 146,72</span></div>
+<span style="font-size: 13px; font-weight: 700">{{ doneCount }} de 8 no carrinho</span>
+</div>
+<div style="display: flex; gap: 4px">
+<sc-for list="{{ items }}" as="s" hint-placeholder-count="8">
+<sc-if value="{{ s.on }}" hint-placeholder-val="{{ false }}"><span style="flex: 1 1 0; height: 6px; border-radius: 3px; background: #D4F36B"></span></sc-if>
+<sc-if value="{{ s.off }}" hint-placeholder-val="{{ true }}"><span style="flex: 1 1 0; height: 6px; border-radius: 3px; background: #1F6B53"></span></sc-if>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #E5EFE9"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D4F36B" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg><span>Mais barata no <strong style="color: #F5F3EC">Atacarejo Planalto</strong>: economia de R$ 12,40</span></div>
+</section>
+
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 14px; border-radius: 18px; background: #ECE8FF; animation: rise .5s .1s ease both">
+<span style="font-size: 13px; line-height: 1.35; flex-grow: 1">Você compra <strong>detergente</strong> a cada ~15 dias. A última foi há 17.</span>
+<button style="height: 44px; padding: 0 14px; border: 0; border-radius: 12px; background: #3F31B0; color: #FFFFFF; font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0">Adicionar</button>
+</div>
+
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; animation: rise .5s .2s ease both">
+<sc-for list="{{ items }}" as="item" hint-placeholder-count="8">
+<li>
+<sc-if value="{{ item.on }}" hint-placeholder-val="{{ false }}">
+<button aria-pressed="true" onClick="{{ item.toggle }}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 10px; border: 1px solid #E7E3D8; border-radius: 16px; background: #EFEDE5; color: #47524C; text-align: left; cursor: pointer">
+<span style="width: 28px; height: 28px; border-radius: 9px; background: #0E4D3A; color: #D4F36B; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: tick .35s ease-out both"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 3; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; flex-grow: 1"><span style="font-size: 15px; font-weight: 600; text-decoration: line-through">{{ item.name }}</span><span style="font-size: 13px">{{ item.meta }}</span></span>
+<span style="font-size: 14px; font-weight: 700">{{ item.price }}</span>
+</button>
+</sc-if>
+<sc-if value="{{ item.off }}" hint-placeholder-val="{{ true }}">
+<button aria-pressed="false" onClick="{{ item.toggle }}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 10px; border: 1px solid #E7E3D8; border-radius: 16px; background: #FFFFFF; color: #14201A; text-align: left; cursor: pointer">
+<span style="width: 28px; height: 28px; border-radius: 9px; border: 2px solid #A9A290; box-sizing: border-box; flex-shrink: 0"></span>
+<span style="display: flex; flex-direction: column; gap: 1px; flex-grow: 1"><span style="font-size: 15px; font-weight: 600">{{ item.name }}</span><span style="font-size: 13px; color: #47524C">{{ item.meta }}</span></span>
+<span style="font-size: 14px; font-weight: 700">{{ item.price }}</span>
+</button>
+</sc-if>
+</li>
+</sc-for>
+</ul>
+</main>
+
+<nav aria-label="Navegação principal" style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: #FFFFFF; border-top: 1px solid #E7E3D8; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; padding: 8px 6px 0; box-sizing: border-box">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg><span>Início</span></a>
+<a href="Gastos.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9v9z"></path><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"></path></svg><span>Gastos</span></a>
+<a href="Escanear.dc.html" style="justify-self: center; margin-top: -28px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: #0E4D3A; font-size: 13px; font-weight: 800"><span style="width: 64px; height: 64px; border-radius: 22px; background: #0E4D3A; color: #D4F36B; display: flex; align-items: center; justify-content: center; animation: pulse 2.4s ease-in-out infinite"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"></path><path d="M7 12h10"></path></svg></span><span>Ler nota</span></a>
+<a href="Ofertas.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg><span>Ofertas</span></a>
+<a href="Ranking.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; text-decoration: none; color: #47524C; font-size: 13px; font-weight: 600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"></path></svg><span>Ranking</span></a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { done: { 3: true, 4: true } };
+  }
+  renderVals() {
+    const list = [
+      { id: 1, name: 'Café torrado e moído 500g', meta: '1 un. · a cada ~10 dias', price: 'R$ 17,98' },
+      { id: 2, name: 'Leite integral 1L', meta: '6 un. · toda semana', price: 'R$ 28,74' },
+      { id: 3, name: 'Pão de forma integral', meta: '1 un. · toda semana', price: 'R$ 9,49' },
+      { id: 4, name: 'Banana prata', meta: '1 kg · toda semana', price: 'R$ 6,99' },
+      { id: 5, name: 'Arroz tipo 1 5kg', meta: '1 un. · a cada ~30 dias', price: 'R$ 27,90' },
+      { id: 6, name: 'Feijão carioca 1kg', meta: '1 un. · a cada ~15 dias', price: 'R$ 8,79' },
+      { id: 7, name: 'Ovos brancos', meta: '12 un. · a cada ~10 dias', price: 'R$ 13,90' },
+      { id: 8, name: 'Sabão líquido 3L', meta: '1 un. · a cada ~30 dias', price: 'R$ 32,93' }
+    ];
+    const done = this.state.done;
+    const items = list.map((it) => ({
+      name: it.name,
+      meta: it.meta,
+      price: it.price,
+      on: !!done[it.id],
+      off: !done[it.id],
+      toggle: () => {
+        const next = Object.assign({}, this.state.done);
+        next[it.id] = !next[it.id];
+        this.setState({ done: next });
+      }
+    }));
+    const doneCount = items.filter((i) => i.on).length;
+    return { items: items, doneCount: doneCount };
+  }
+}
+</script>
+</body>
+</html>

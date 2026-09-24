@@ -1,0 +1,65 @@
+# GasteMenos — instruções para o Claude Code
+
+GasteMenos é um PWA de controle de gastos no varejo. A pessoa lê o QR code da nota fiscal (NFC-e), o app guarda itens e preços, mostra os gastos do mês, compara cada preço com a média da região (dados coletivos) e recompensa cada nota com pontos, níveis e ranking. Leia `docs/01-PRD.md` antes de qualquer tarefa grande.
+
+## Fonte da verdade
+
+1. **Telas**: `referencia/telas/*.dc.html` (34 telas, 390×844). São o visual aprovado: copie espaçamentos, textos e hierarquia delas. O mapa tela → rota está em `docs/05-TELAS-E-ROTAS.md`.
+2. **Design system**: `design-system/` (tokens, CSS, preset do Tailwind, especificação dos componentes). Nunca escreva um hexadecimal, tamanho de fonte ou raio solto no código: use os tokens.
+3. **Regras de negócio**: `docs/06-NFCE-LEITURA.md`, `docs/07-GAMIFICACAO.md`, `docs/09-SEGURANCA-LGPD.md`.
+4. **Ordem de trabalho**: `docs/11-ROADMAP-E-PROMPTS.md`. Faça uma fase por vez e só avance quando os critérios de aceite da fase passarem.
+
+## Stack (não trocar sem pedir)
+
+- Monorepo **pnpm workspaces + Turborepo**, TypeScript estrito em tudo.
+- `apps/web`: **React 18 + Vite + TypeScript**, React Router 6, TanStack Query 5, Zustand (estado de UI), React Hook Form + Zod, **Tailwind CSS** com o preset `packages/tokens`, `vite-plugin-pwa` (Workbox), leitura de QR com `BarcodeDetector` e fallback `@zxing/browser`.
+- `apps/api`: **NestJS 10 + Prisma + PostgreSQL 16**, Redis + BullMQ para a fila de consulta de notas, Passport (JWT + Google OAuth 2.0), class-validator, Swagger em `/docs`.
+- `packages/ui`: componentes React do design system (porte em TSX de `design-system/bundle-referencia/`).
+- `packages/tokens`: `tokens.json` → `tokens.css` + preset do Tailwind.
+- `packages/shared`: schemas Zod e tipos compartilhados entre web e api.
+- `apps/oracle` (fase Solana, separada): ver `docs/10-MODULO-SOLANA.md`.
+- Testes: Vitest + Testing Library + `vitest-axe` no web; Jest + Supertest na api; Playwright para os fluxos principais.
+- Infra: Docker Compose para desenvolvimento; deploy em Coolify (um serviço web estático, um serviço api, Postgres e Redis).
+
+## Comandos
+
+```bash
+pnpm i
+docker compose up -d db redis
+pnpm --filter api prisma migrate dev
+pnpm dev            # web em :5173, api em :3000
+pnpm test           # todos os testes
+pnpm lint && pnpm typecheck
+pnpm --filter web test:a11y   # axe em todas as rotas
+```
+
+## Regras de código
+
+- Português do Brasil em toda a interface e nas mensagens de erro; código, nomes de arquivos e commits em inglês.
+- Componentes de tela em `apps/web/src/routes/<rota>/`; componentes reutilizáveis só em `packages/ui`.
+- Dinheiro sempre em **centavos (inteiro)** no banco e na API; formate com `Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })`.
+- Datas em UTC no banco; mostre no fuso `America/Sao_Paulo`.
+- Toda rota da API valida entrada com DTO e responde erros no formato `{ code, message }` com `message` em português simples.
+- Nenhuma chamada à SEFAZ sai do navegador: o web envia a URL do QR code ou a chave para a API.
+
+## Acessibilidade (critério de aceite de TODA tela)
+
+Leia `docs/08-ACESSIBILIDADE.md`. Em resumo:
+- Texto nunca menor que 13px; tamanhos em `rem` (o usuário escolhe Normal, Grande ou Muito grande).
+- Contraste 4,5:1 (3:1 para texto de 24px ou mais e bordas de controle) nos temas claro, escuro e alto contraste.
+- Alvo de toque mínimo de 44×44.
+- Elementos reais: `button`, `a`, `input` com `label`. Nada de `div` clicável.
+- Foco visível (`:focus-visible` com o token `focus`).
+- Respeite `prefers-reduced-motion` e a opção "Reduzir movimento" do app.
+- Significado nunca só pela cor (preço acima/abaixo leva seta e palavra).
+- Todo teste de tela roda `axe` e falha com qualquer violação.
+
+## Texto da interface
+
+- Diga "pontos", nunca "XP". Diga "nota fiscal"; "NFC-e" só na ajuda.
+- Botões dizem o que acontece ("Salvar alterações"). Erros dizem como resolver ("Digite os 8 números do CEP.").
+- Oferta paga sempre mostra o selo "Patrocinado".
+
+## Definição de pronto
+
+Uma tarefa só está pronta quando: bate com a tela de referência, passa lint, typecheck e testes, não tem violação de axe, funciona a 390px e a 320px de largura, funciona com letra "Muito grande" e no tema alto contraste, e os textos estão em português.

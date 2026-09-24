@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GasteMenos · Central de notificações</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9E6DD;font-family:'Figtree',system-ui,sans-serif;color:#14201A}
+h1,h2,h3{font-family:'Bricolage Grotesque','Figtree',system-ui,sans-serif;margin:0;letter-spacing:-0.02em}
+a{color:#0E4D3A}a:hover{color:#0A3A2B}
+button{font-family:inherit}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(242,107,58,.6)}100%{box-shadow:0 0 0 8px rgba(242,107,58,0)}}
+:focus-visible{outline:3px solid #6B5BE0;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 980px; position: relative; overflow: hidden; background: #F5F3EC; box-sizing: border-box; padding: 16px 20px 28px; display: flex; flex-direction: column; gap: 16px">
+
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<a href="Main.dc.html" aria-label="Voltar" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a>
+<h1 style="font-size: 20px; font-weight: 800">Notificações</h1>
+<a href="Notificacoes.dc.html" aria-label="Configurar notificações" style="width: 44px; height: 44px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E2DDD0; color: #14201A; display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"></path><path d="M16 4v4M10 10v4M18 16v4"></path></svg></a>
+</header>
+
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<div role="group" aria-label="Filtrar" style="display: flex; gap: 6px">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+<sc-if value="{{ t.on }}" hint-placeholder-val="{{ false }}"><button type="button" aria-pressed="true" onClick="{{ t.pick }}" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 0; background: #14201A; color: #F5F3EC; font-size: 13px; font-weight: 700; cursor: pointer">{{ t.label }}</button></sc-if>
+<sc-if value="{{ t.off }}" hint-placeholder-val="{{ true }}"><button type="button" aria-pressed="false" onClick="{{ t.pick }}" style="height: 44px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #D8D2C2; background: #FFFFFF; color: #14201A; font-size: 13px; font-weight: 600; cursor: pointer">{{ t.label }}</button></sc-if>
+</sc-for>
+</div>
+<sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ readAll }}" style="height: 44px; padding: 0 4px; border: 0; background: transparent; color: #0E4D3A; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap">Marcar como lidas</button></sc-if>
+</div>
+
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+<section style="display: flex; flex-direction: column; gap: 8px; animation: rise .4s ease both">
+<h2 style="font-size: 13px; font-weight: 800; letter-spacing: .08em; color: #47524C; padding-left: 4px">{{ g.title }}</h2>
+<sc-for list="{{ g.items }}" as="n" hint-placeholder-count="3">
+<a href="{{ n.href }}" style="position: relative; display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 18px; background: #FFFFFF; border: 1px solid #ECE8DC; text-decoration: none; color: #14201A">
+<sc-if value="{{ n.isPreco }}" hint-placeholder-val="{{ true }}"><span style="width: 40px; height: 40px; border-radius: 12px; background: #E4F5A6; color: #0E4D3A; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="m3 7 6 6 4-4 8 8M21 11v6h-6"></path></svg></span></sc-if>
+<sc-if value="{{ n.isJogo }}" hint-placeholder-val="{{ false }}"><span style="width: 40px; height: 40px; border-radius: 12px; background: #ECE8FF; color: #3F31B0; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"></path></svg></span></sc-if>
+<sc-if value="{{ n.isOferta }}" hint-placeholder-val="{{ false }}"><span style="width: 40px; height: 40px; border-radius: 12px; background: #FFE4D6; color: #9A3412; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3"></path></svg></span></sc-if>
+<sc-if value="{{ n.isResumo }}" hint-placeholder-val="{{ false }}"><span style="width: 40px; height: 40px; border-radius: 12px; background: #F0EEE6; color: #14201A; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9v9zM15 3.5A9 9 0 0 1 20.5 9H15z"></path></svg></span></sc-if>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px; padding-right: 12px">
+<sc-if value="{{ n.unread }}" hint-placeholder-val="{{ true }}"><span style="font-size: 14px; font-weight: 700; line-height: 1.35">{{ n.title }}</span></sc-if>
+<sc-if value="{{ n.read }}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; font-weight: 500; line-height: 1.35; color: #3D4842">{{ n.title }}</span></sc-if>
+<span style="font-size: 13px; color: #47524C">{{ n.time }}</span>
+</span>
+<sc-if value="{{ n.unread }}" hint-placeholder-val="{{ true }}"><span aria-label="Não lida" style="position: absolute; right: 14px; top: 16px; width: 10px; height: 10px; border-radius: 50%; background: #F26B3A; animation: ping 1.6s ease-out infinite"></span></sc-if>
+</a>
+</sc-for>
+</section>
+</sc-for>
+
+<sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><p style="margin: 40px 0 0; text-align: center; font-size: 15px; color: #47524C">Nada por aqui ainda.</p></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":980}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'todas', allRead: false };
+  }
+  renderVals() {
+    const all = [
+      { g: 'hoje', type: 'preco', title: 'Café torrado 500g baixou para R$ 17,98 no Atacarejo Planalto', time: 'há 20 min', href: 'Precos.dc.html', unread: true },
+      { g: 'hoje', type: 'jogo', title: 'Lu Andrade passou você no ranking de economia. Faltam R$ 13,10 para retomar o 4º lugar.', time: 'há 2 h', href: 'Ranking.dc.html', unread: true },
+      { g: 'hoje', type: 'jogo', title: 'Falta 1 nota para o nível 13', time: 'há 5 h', href: 'Escanear.dc.html', unread: true },
+      { g: 'semana', type: 'preco', title: '3 itens da sua lista estão mais baratos na região', time: 'ontem', href: 'Lista.dc.html', unread: false },
+      { g: 'semana', type: 'oferta', title: 'Patrocinado · Semana do Hortifrúti no Supermercado Vila Nova', time: 'ter', href: 'Ofertas.dc.html', unread: false },
+      { g: 'semana', type: 'jogo', title: '5 semanas seguidas! Você ganhou +40 pontos', time: 'seg', href: 'Conquistas.dc.html', unread: false },
+      { g: 'semana', type: 'resumo', title: 'Resumo da semana: você gastou R$ 227,40, 12% abaixo da média', time: 'dom', href: 'Gastos.dc.html', unread: false }
+    ];
+    const tab = this.state.tab;
+    const match = (n) => tab === 'todas' || (tab === 'precos' && (n.type === 'preco' || n.type === 'oferta')) || (tab === 'jogo' && n.type === 'jogo');
+    const mk = (n) => {
+      const unread = n.unread && !this.state.allRead;
+      return Object.assign({}, n, { unread: unread, read: !unread, isPreco: n.type === 'preco', isJogo: n.type === 'jogo', isOferta: n.type === 'oferta', isResumo: n.type === 'resumo' });
+    };
+    const shown = all.filter(match).map(mk);
+    const groups = [
+      { title: 'HOJE', items: shown.filter((n) => n.g === 'hoje') },
+      { title: 'ESTA SEMANA', items: shown.filter((n) => n.g === 'semana') }
+    ].filter((g) => g.items.length > 0);
+    const opts = [{ id: 'todas', label: 'Todas' }, { id: 'precos', label: 'Preços' }, { id: 'jogo', label: 'Jogo' }];
+    return {
+      tabs: opts.map((o) => ({ label: o.label, on: o.id === tab, off: o.id !== tab, pick: () => this.setState({ tab: o.id }) })),
+      groups: groups,
+      empty: groups.length === 0,
+      hasUnread: !this.state.allRead,
+      readAll: () => this.setState({ allRead: true })
+    };
+  }
+}
+</script>
+</body>
+</html>
