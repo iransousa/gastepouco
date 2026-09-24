@@ -100,8 +100,13 @@ export const configuracao = {
     get url(): string {
       return process.env.SUPABASE_URL ?? '';
     },
+    /**
+     * `SUPABASE_SECRET_KEY` é o nome atual (chaves `sb_secret_…`);
+     * `SUPABASE_SERVICE_ROLE_KEY` é o nome antigo, aceito para não quebrar
+     * ambiente já configurado. Nos dois casos: só servidor, nunca no web.
+     */
     get chaveDeServico(): string {
-      return process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+      return process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
     },
     get balde(): string {
       return process.env.SUPABASE_STORAGE_BUCKET ?? 'exportacoes';

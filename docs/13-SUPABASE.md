@@ -1,7 +1,9 @@
 # Supabase como banco de produção
 
 > **Estado:** ✅ EXECUTADO no código (conexão, armazenamento e blindagem do schema).
-> ⬜ PENDENTE a criação do projeto e o primeiro deploy — depende de credencial, não de código.
+> ✅ Projeto criado: `vmxoyqvclhbqhpezsstg`, região sa-east-1, balde `exportacoes`
+> privado, ida e volta de arquivo verificada com a chave secreta.
+> ⬜ PENDENTE aplicar o schema no banco (falta a senha do Postgres) e o deploy.
 
 O Supabase entra **só como Postgres gerenciado e armazenamento de arquivo**. A
 API continua sendo o único cliente do banco: nada de PostgREST, nada de Supabase
@@ -82,12 +84,22 @@ não há credencial (desenvolvimento e teste), Supabase Storage quando há.
 
 ```bash
 SUPABASE_URL="https://<PROJECT-REF>.supabase.co"
-SUPABASE_SERVICE_ROLE_KEY="<chave de servico>"
+SUPABASE_SECRET_KEY="sb_secret_..."
 SUPABASE_STORAGE_BUCKET="exportacoes"
 ```
 
-Crie o balde **privado**, com esse nome. Sem policy nenhuma: o acesso é sempre
-pela chave de serviço, no servidor.
+`SUPABASE_SECRET_KEY` é o nome atual das chaves do Supabase (`sb_secret_…`, que
+substituíram a `service_role`); `SUPABASE_SERVICE_ROLE_KEY` ainda é aceito, para
+não quebrar ambiente já configurado.
+
+A **chave publicável** (`sb_publishable_…`) não é usada em lugar nenhum deste
+repositório, e isso é proposital: o web fala com a nossa API, nunca com o
+Supabase. Se um dia ela aparecer no código do web, alguma coisa saiu do lugar.
+
+O balde é **privado**, sem policy nenhuma: o acesso é sempre pela chave secreta,
+no servidor. Ele foi criado com `file_size_limit` de 50 MB e
+`allowed_mime_types` `["application/zip"]` — um balde que só aceita o que a API
+grava é uma superfície a menos.
 
 **O arquivo nunca ganha URL pública, nem assinada.** Quem baixa passa pelo
 endpoint autenticado `GET /v1/me/export/:id/download`, que lê o conteúdo pelo
