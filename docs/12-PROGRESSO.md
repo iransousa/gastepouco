@@ -413,12 +413,21 @@ que a sessão sucessora está em uso.
   ele era invisível no fonte — e o ESLint, com razão, recusava.
 
 
-## Banco de produção no Supabase — executado (código)
+## Banco de produção no Supabase — executado
 
 Supabase entra **só como Postgres gerenciado e Storage**; a API continua sendo o
-único cliente do banco. O passo a passo, o porquê de cada decisão e o roteiro do
-primeiro deploy estão em `13-SUPABASE.md`. Falta apenas criar o projeto e
-implantar — isso depende de credencial, não de código.
+único cliente do banco. O porquê de cada decisão e os comandos estão em
+`13-SUPABASE.md`.
+
+O projeto está de pé: 4 migrations aplicadas, 29 tabelas, RLS em todas, nenhum
+privilégio para `anon`/`authenticated`, balde `exportacoes` privado com ida e
+volta de arquivo verificada. A prova que vale é de fora: com a chave publicável,
+`/rest/v1/User`, `Receipt`, `PriceObservation`, `Session` e `Store` respondem
+401 (`42501`). Falta só implantar API e web.
+
+O `.env` continua apontando para o Postgres do Docker. Os comandos que falam com
+produção usam `.env.supabase`, fora do git — misturar os dois é como um teste
+apaga banco de verdade.
 
 O que mudou no repositório:
 

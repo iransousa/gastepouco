@@ -1,9 +1,11 @@
 # Supabase como banco de produção
 
-> **Estado:** ✅ EXECUTADO no código (conexão, armazenamento e blindagem do schema).
-> ✅ Projeto criado: `vmxoyqvclhbqhpezsstg`, região sa-east-1, balde `exportacoes`
-> privado, ida e volta de arquivo verificada com a chave secreta.
-> ⬜ PENDENTE aplicar o schema no banco (falta a senha do Postgres) e o deploy.
+> **Estado:** ✅ EXECUTADO. Projeto `vmxoyqvclhbqhpezsstg` (sa-east-1) com as 4
+> migrations aplicadas, 29 tabelas, RLS ligada em todas, nenhum privilégio para
+> `anon`/`authenticated`, balde `exportacoes` privado e ida e volta de arquivo
+> verificada. Conferido de fora: a chave publicável recebe 401 (`42501`) em
+> `User`, `Receipt`, `PriceObservation`, `Session` e `Store`.
+> ⬜ PENDENTE só o deploy da API e do web (Coolify) com essas variáveis.
 
 O Supabase entra **só como Postgres gerenciado e armazenamento de arquivo**. A
 API continua sendo o único cliente do banco: nada de PostgREST, nada de Supabase
@@ -121,27 +123,48 @@ ambiente da API.
 - **Backup.** Passa a ser do Supabase (PITR no plano pago). O item de backup
   diário em `09-SEGURANCA-LGPD.md` está atendido por ele.
 
-## 5. Passo a passo do primeiro deploy
+## 5. Rodar comandos contra o Supabase sem mexer no desenvolvimento
+
+O `.env` aponta para o Postgres do Docker e **continua assim**: é onde
+desenvolvimento e teste têm de rodar. Os comandos que falam com produção usam um
+segundo arquivo, `.env.supabase` (fora do git, como todo `.env.*`):
 
 ```bash
-# 1. Preencher .env (ou as variáveis do Coolify) com as duas conexões + Storage.
-# 2. Criar o schema no Supabase:
-pnpm --filter @gastemenos/api db:deploy       # usa DIRECT_URL
+cd apps/api
 
-# 3. Fechar o schema (a migration já faz isto; repita após novas migrations):
-DATABASE_URL="$DIRECT_URL" pnpm --filter @gastemenos/api db:blindar
+# Conferir o que falta aplicar:
+npx dotenv -e ../../.env.supabase -- npx prisma migrate status
 
-# 4. Conferir:
-#    - Settings → API → Exposed schemas sem `public`
-#    - Storage → balde `exportacoes` privado
-#    - SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname='public';
-#      (rowsecurity = t em todas)
+# Aplicar o schema:
+npx dotenv -e ../../.env.supabase -- npx prisma migrate deploy
 
-# 5. Seed NÃO roda em produção: ele é dado de demonstração (docs/12-PROGRESSO.md).
+# Fechar o schema de novo, depois de uma migration que crie tabela:
+npx dotenv -e ../../.env.supabase -- npx prisma db execute   --file prisma/sql/blindar-schema.sql --schema prisma/schema.prisma
 ```
 
+Cuidado com a senha do Postgres na string de conexão: caractere como `&` ou `#`
+precisa ir **percent-encoded** (`%26`, `%23`), senão a URL termina antes da hora
+e o erro que aparece é de autenticação, não de sintaxe.
+
+**Seed não roda em produção**: ele é dado de demonstração (`12-PROGRESSO.md`).
 Para uma base de demonstração do hackathon, aí sim `db:seed` — e num projeto
-Supabase separado do de produção.
+Supabase separado.
+
+### Conferência final
+
+```bash
+# RLS em todas as tabelas
+SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';
+
+# Nenhum privilégio para as chaves públicas
+SELECT grantee, count(*) FROM information_schema.role_table_grants
+ WHERE table_schema = 'public' AND grantee IN ('anon','authenticated')
+ GROUP BY grantee;
+```
+
+E de fora, com a chave publicável, que é o teste que vale: qualquer tabela em
+`/rest/v1/` tem de responder **401** com `42501`. No painel, tirar `public` de
+**Settings → API → Exposed schemas** fecha por cima disso.
 
 ## 6. O que continua igual
 
