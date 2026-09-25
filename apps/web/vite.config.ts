@@ -3,6 +3,35 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
 
+/**
+ * Hosts que o servidor de desenvolvimento aceita no cabeçalho `Host`.
+ *
+ * O Vite recusa host desconhecido de propósito: sem isso, uma página qualquer
+ * aberta no navegador pode apontar um domínio para 127.0.0.1 e conversar com o
+ * servidor de desenvolvimento de quem está com ela aberta (DNS rebinding).
+ *
+ * `'*'` não vale como item da lista — ou é `true`, que libera qualquer host, ou
+ * são nomes. Nome começando com ponto vale para o domínio e os subdomínios.
+ * `WEB_ALLOWED_HOSTS` aceita uma lista separada por vírgula, para abrir outro
+ * túnel sem mexer neste arquivo.
+ */
+const hostsPermitidos = [
+  'localhost',
+  '127.0.0.1',
+  '.borrowbits.xyz',
+  ...(process.env.WEB_ALLOWED_HOSTS?.split(',')
+    .map((host) => host.trim())
+    .filter(Boolean) ?? []),
+];
+
+/**
+ * Atrás de um túnel HTTPS, o navegador carrega a página pela porta 443 e o Vite
+ * manda o cliente do HMR procurar o servidor na 5173, que não existe do lado de
+ * fora. `WEB_PUBLIC_HOST` corrige o endereço anunciado — sem isso o app abre,
+ * mas o console enche de tentativa de reconexão.
+ */
+const hostPublico = process.env.WEB_PUBLIC_HOST?.trim();
+
 export default defineConfig({
   plugins: [
     react(),
@@ -51,8 +80,13 @@ export default defineConfig({
   server: {
     // Bind explicito em IPv4: no Windows 'localhost' resolve para ::1 primeiro,
     // e Playwright/curl em 127.0.0.1 nao acham o servidor.
-    host: '127.0.0.1',
+    // Com WEB_PUBLIC_HOST (tunel), escuta em todas as interfaces.
+    host: hostPublico ? true : '127.0.0.1',
     port: 5173,
+    allowedHosts: hostsPermitidos,
+    ...(hostPublico
+      ? { hmr: { protocol: 'wss', host: hostPublico, clientPort: 443 } }
+      : {}),
     proxy: {
       // O web fala com a API pelo mesmo endereço em desenvolvimento, para o
       // cookie de refresh (SameSite=Lax) funcionar como funciona em produção.
