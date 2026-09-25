@@ -33,6 +33,7 @@ export const MENSAGENS: Record<string, string> = {
   TOO_MANY_ATTEMPTS: 'Muitas tentativas. Espere 15 minutos e tente de novo.',
   SESSION_EXPIRED: 'Sua sessão expirou. Entre de novo.',
   LAST_AUTH_METHOD: 'Essa é a sua única forma de entrar. Cadastre outra antes de remover esta.',
+  GOOGLE_UNAVAILABLE: 'Entrar com o Google não está disponível agora. Use e-mail e senha.',
 
   // Conta
   ACCOUNT_PAUSED: 'Sua conta está pausada. Reative para continuar.',

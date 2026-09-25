@@ -479,3 +479,35 @@ nada: conecta como dona das tabelas, e dona não entra na RLS.
 - **Supabase Auth ficou de fora.** Login, sessões rotativas, consentimento
   versionado e o mínimo de anonimato dos preços são regra testada em
   `apps/api/test`; em policy SQL virariam regra sem teste.
+
+
+## Login com o Google — executado
+
+O fluxo é redirecionamento pelo servidor (Passport, PKCE + `state`), não SDK no
+navegador: nenhum script nosso fala com o Google. No console do Google, o que
+importa é o **redirect URI**, que precisa bater caractere a caractere com
+`GOOGLE_CALLBACK_URL`; **JavaScript origins** pode ficar vazio.
+
+### Duas falhas que só apareceram na primeira ligação de verdade
+
+**"Unknown authentication strategy" com 500 na cara da pessoa.** A estratégia só
+é registrada quando há credencial no ambiente — o que é certo, senão a API nem
+sobe em desenvolvimento. Mas a rota continuava exposta, e quem tocava em
+"Continuar com o Google" lia "algo deu errado do nosso lado": verdade e inútil,
+porque convida a tentar de novo. Agora `GoogleConfiguradoGuarda` responde 503
+`GOOGLE_UNAVAILABLE`, dizendo para usar e-mail e senha.
+
+**"OAuth 2.0 authentication requires session support when using state."** O
+`passport-oauth2` guarda `state` e verificador do PKCE em `req.session`, e esta
+API não tem sessão de servidor — nem deve ter, porque a sessão da pessoa é o
+cookie de refresh e nada mais. Acrescentar `express-session` significaria um
+armazenamento compartilhado entre instâncias para durar os segundos de um
+redirecionamento.
+
+`EstadoEmCookie` guarda os dois num cookie httpOnly assinado com HMAC, válido
+por 10 minutos, apagado na verificação. `SameSite=Lax` é obrigatório aqui:
+`Strict` não acompanharia a volta do Google, e o login quebraria.
+
+O teste fixa também a **quantidade de parâmetros** das funções: o
+`passport-oauth2` escolhe a variante do `store` por `store.length`, então um
+parâmetro a mais muda o contrato em silêncio e só quebra em produção.

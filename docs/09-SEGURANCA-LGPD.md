@@ -40,6 +40,8 @@
 - Rate limit (Nest Throttler + Redis) em login, cadastro, reenvio de código, leitura de nota (10 com pontos por dia) e busca.
 - Verificação em duas etapas opcional por SMS ou e-mail; aviso por e-mail em troca de senha, novo aparelho e pedido de exclusão.
 - Google OAuth com PKCE e `state`; ligar conta Google a uma conta existente só com o mesmo e-mail verificado.
+  - O `state` e o verificador do PKCE ficam num **cookie httpOnly assinado com HMAC**, válido por 10 minutos e apagado no retorno (`estado-em-cookie.ts`). O padrão do `passport-oauth2` é `req.session`, o que exigiria `express-session` — armazenamento de sessão no servidor, compartilhado entre instâncias, para os segundos de um redirecionamento. A única sessão desta API é o cookie de refresh.
+  - Sem `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` a estratégia não é registrada, e `/v1/auth/google` responde **503 `GOOGLE_UNAVAILABLE`** com texto que diz o que fazer, em vez de 500.
 - Logs sem dados pessoais (mascarar e-mail, nunca logar tokens, CPF ou HTML de nota).
 - Backups diários criptografados do Postgres, com retenção de 30 dias — em produção, o PITR do Supabase (`docs/13-SUPABASE.md`).
 - O schema do banco fica fechado para as chaves públicas do Supabase: RLS ligada em toda tabela, sem policy, e privilégios revogados de `anon`/`authenticated` (`apps/api/prisma/sql/blindar-schema.sql`). A API conecta como dona das tabelas.

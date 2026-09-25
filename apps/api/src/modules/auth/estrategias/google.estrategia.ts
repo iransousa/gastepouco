@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, type Profile, type VerifyCallback } from 'passport-google-oauth20';
 import { configuracao } from '../../../comum/configuracao.js';
+import { EstadoEmCookie } from './estado-em-cookie.js';
 
 export interface PerfilDoGoogle {
   providerAccountId: string;
@@ -30,8 +31,10 @@ export class GoogleEstrategia extends PassportStrategy(Strategy, 'google') {
       clientSecret: configuracao.google.clientSecret || 'nao-configurado',
       callbackURL: configuracao.google.callbackUrl,
       scope: ['profile', 'email'],
-      state: true,
       pkce: true,
+      // `state: true` usaria `req.session`, que esta API não tem. O estado vai
+      // num cookie assinado — ver estado-em-cookie.ts.
+      store: new EstadoEmCookie(),
     });
   }
 

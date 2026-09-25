@@ -20,6 +20,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service.js';
 import { SessoesService, type ParDeTokens } from './sessoes.service.js';
 import { JwtGuarda } from './guardas/jwt.guarda.js';
+import { GoogleConfiguradoGuarda } from './guardas/google-configurado.guarda.js';
 import type { PerfilDoGoogle } from './estrategias/google.estrategia.js';
 import {
   ConfirmarEmailDto,
@@ -183,14 +184,14 @@ export class AuthController {
   // ------------------------------------------------------ Google (OAuth 2)
 
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleConfiguradoGuarda, AuthGuard('google'))
   @ApiOperation({ summary: 'Manda para o Google (PKCE + state)' })
   entrarComGoogle(): void {
     // O guard redireciona. Nada para fazer aqui.
   }
 
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleConfiguradoGuarda, AuthGuard('google'))
   @ApiOperation({
     summary: 'Volta do Google, cria a sessão e devolve o navegador ao app',
     description:
