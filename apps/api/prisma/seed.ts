@@ -288,12 +288,48 @@ async function limpar(): Promise<void> {
   for (const tabela of tabelas) await tabela;
 }
 
+/**
+ * Decide se o seed pode apagar antes de inserir.
+ *
+ * `NODE_ENV` não protege nada aqui: quem roda um comando na própria máquina
+ * está em "development" mesmo com a `DATABASE_URL` apontando para um banco
+ * gerenciado. A pergunta certa não é em que ambiente estou, é **em qual banco
+ * vou mexer**.
+ *
+ * Em banco local, limpar é o comportamento útil: reexecutar o seed é rotina.
+ * Fora de localhost o seed **não apaga nada** — exige a base vazia e só
+ * insere. Não é uma confirmação a mais para digitar: é tirar do seed, por
+ * construção, a capacidade de destruir dado remoto. Confirmação a gente digita
+ * no automático; o que não existe não acontece.
+ */
+async function podeLimpar(): Promise<boolean> {
+  const url = process.env.DATABASE_URL ?? '';
+  if (/@(localhost|127\.0\.0\.1|::1|db|postgres)[:/]/.test(url)) return true;
+
+  const servidor = url.replace(/^.*@/, '').replace(/\/.*$/, '') || '(desconhecido)';
+  const [usuarios, notas, lojas] = await Promise.all([
+    prisma.user.count(),
+    prisma.receipt.count(),
+    prisma.store.count(),
+  ]);
+
+  if (usuarios + notas + lojas > 0) {
+    throw new Error(
+      `${servidor} não é um banco local e já tem dado ` +
+        `(${usuarios} usuários, ${notas} notas, ${lojas} lojas).\n` +
+        'O seed não apaga base remota. Limpe você mesmo, se for essa a intenção.',
+    );
+  }
+
+  return false;
+}
+
 async function main(): Promise<void> {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('O seed é de desenvolvimento. Não rode em produção.');
   }
 
-  await limpar();
+  if (await podeLimpar()) await limpar();
 
   // --- categorias e selos
   await prisma.category.createMany({ data: CATEGORIAS.map((c) => ({ ...c })) });

@@ -17,6 +17,7 @@ describe('armazenamento', () => {
     pasta = await mkdtemp(join(tmpdir(), 'gastemenos-'));
     process.env.EXPORT_DIR = pasta;
     delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_SECRET_KEY;
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
   });
 
@@ -45,7 +46,14 @@ describe('armazenamento', () => {
 
   it('com as duas credenciais, o destino passa a ser o Supabase', () => {
     process.env.SUPABASE_URL = 'https://exemplo.supabase.co';
-    process.env.SUPABASE_SERVICE_ROLE_KEY = 'chave-de-servico';
+    process.env.SUPABASE_SECRET_KEY = 'sb_secret_exemplo';
+
+    expect(new ArmazenamentoService().destino).toBe('supabase');
+  });
+
+  it('o nome antigo da variável continua valendo', () => {
+    process.env.SUPABASE_URL = 'https://exemplo.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'chave-de-servico-antiga';
 
     expect(new ArmazenamentoService().destino).toBe('supabase');
   });

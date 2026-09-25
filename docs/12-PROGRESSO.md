@@ -429,6 +429,22 @@ O `.env` continua apontando para o Postgres do Docker. Os comandos que falam com
 produção usam `.env.supabase`, fora do git — misturar os dois é como um teste
 apaga banco de verdade.
 
+A base do Supabase está com o seed de demonstração, e a aplicação local roda
+contra ela com `pnpm --filter @gastemenos/api dev:supabase`. Conferido trocando
+um nome direto no banco e vendo o valor novo sair em `/v1/me`.
+
+### O seed deixou de poder apagar base remota
+
+O seed apaga todas as tabelas antes de inserir — o que é o certo em
+desenvolvimento e inaceitável em qualquer outro lugar. `NODE_ENV` não protegia
+nada: quem roda o comando na própria máquina está em "development" mesmo com a
+`DATABASE_URL` apontando para um banco gerenciado.
+
+Agora, fora de localhost, ele **exige a base vazia e só insere**. Não foi
+acrescentada uma confirmação para digitar: confirmação a gente digita no
+automático, e o `afterEach` da fase 6 mostrou o preço disso. Tirar a capacidade
+é diferente de pedir permissão.
+
 O que mudou no repositório:
 
 - `directUrl` no datasource do Prisma: no Supabase, o pooler de transação (6543)

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "dotenv -e ../../.env -- nest start --watch",
+    "dev:supabase": "dotenv -e ../../.env.supabase -- nest start --watch",
     "build": "nest build",
     "start": "dotenv -e ../../.env -- node dist/main.js",
     "test": "dotenv -e ../../.env -- jest --passWithNoTests --runInBand",

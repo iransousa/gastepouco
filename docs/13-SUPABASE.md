@@ -146,9 +146,23 @@ Cuidado com a senha do Postgres na string de conexão: caractere como `&` ou `#`
 precisa ir **percent-encoded** (`%26`, `%23`), senão a URL termina antes da hora
 e o erro que aparece é de autenticação, não de sintaxe.
 
-**Seed não roda em produção**: ele é dado de demonstração (`12-PROGRESSO.md`).
-Para uma base de demonstração do hackathon, aí sim `db:seed` — e num projeto
-Supabase separado.
+### Seed: em banco remoto ele não apaga nada
+
+O seed apaga todas as tabelas antes de inserir, porque reexecutá-lo é rotina em
+desenvolvimento. Contra um banco que não é local ele muda de comportamento:
+**exige a base vazia e só insere**. Se houver dado, para e manda limpar à mão.
+
+Isso não é uma confirmação a mais para digitar — confirmação a gente digita no
+automático. É tirar do seed, por construção, a capacidade de destruir dado
+remoto.
+
+```bash
+npx dotenv -e ../../.env.supabase -- npx tsx prisma/seed.ts
+```
+
+O conteúdo é de demonstração (Camila Alves, R$ 1.284,60 em setembro). Serve para
+o vídeo do hackathon e para conferir as telas; para valer como produção, a base
+tem de nascer vazia e com `USER_HASH_SECRET` definitivo.
 
 ### Conferência final
 
@@ -166,7 +180,21 @@ E de fora, com a chave publicável, que é o teste que vale: qualquer tabela em
 `/rest/v1/` tem de responder **401** com `42501`. No painel, tirar `public` de
 **Settings → API → Exposed schemas** fecha por cima disso.
 
-## 6. O que continua igual
+## 6. Rodar a aplicação local contra o Supabase
+
+```bash
+pnpm --filter @gastemenos/api dev:supabase   # API lendo .env.supabase
+pnpm --filter @gastemenos/web dev            # web, como sempre
+```
+
+`pnpm dev` (sem sufixo) continua no Postgres do Docker, e **os testes também** —
+eles leem o `.env`. É essa separação que impede a suíte, que cria e apaga
+usuários, de encostar na base do Supabase.
+
+Para confirmar de qual banco a API está lendo, mude um dado direto no Supabase
+e chame `/v1/me`: se o valor novo aparecer, é de lá.
+
+## 7. O que continua igual
 
 Prisma, todos os módulos da API, os testes, o web e o design system. A troca é de
 endereço do banco e de destino de arquivo; nenhuma regra de negócio muda.
