@@ -199,11 +199,14 @@ describe('admin', () => {
   });
 
   describe('página guardada da nota que falhou', () => {
+    // Os números aqui são inventados de propósito. A primeira versão deste
+    // teste usava o CPF que veio no fixture do app antigo — um CPF de uma
+    // pessoa de verdade, num arquivo a caminho de um repositório público.
     it('o CPF sai antes de guardar', () => {
-      const html = `<li><strong>CPF: </strong>223.536.868-93</li><li>CPF 12345678901</li>`;
+      const html = `<li><strong>CPF: </strong>111.111.111-11</li><li>CPF 12345678901</li>`;
       const limpo = semCpf(html);
 
-      expect(limpo).not.toContain('223.536.868-93');
+      expect(limpo).not.toContain('111.111.111-11');
       expect(limpo).not.toContain('12345678901');
       expect(limpo).toContain('[CPF removido]');
     });
