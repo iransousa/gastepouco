@@ -65,18 +65,31 @@ docker build -f apps/web/Dockerfile -t gastemenos-web .
 
 `DATABASE_URL`, `DIRECT_URL` (Supabase — atenção ao `%26` se a senha tiver `&`),
 `APP_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `USER_HASH_SECRET`,
-`SUPABASE_URL`, `SUPABASE_SECRET_KEY`.
+**`CPF_HASH_SECRET`**, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`.
 
-Os três segredos **precisam ser novos em produção**, não os valores de
-desenvolvimento do `.env.example`. E `USER_HASH_SECRET` não se troca depois:
-ele entra no `userHash` de cada observação de preço, e mudá-lo desliga o
-histórico da região de quem já contribuiu.
+Os quatro segredos **precisam ser novos em produção**, não os valores de
+desenvolvimento do `.env.example`. E **dois deles não se trocam depois**:
+
+- `USER_HASH_SECRET` entra no `userHash` de cada observação de preço; mudá-lo
+  desliga o histórico da região de quem já contribuiu.
+- `CPF_HASH_SECRET` entra no hash do CPF; mudá-lo faz todo mundo precisar
+  vincular o CPF de novo, e sem CPF a recompensa fica em espera
+  (`18-RECOMPENSAS.md`). É **separado** do anterior porque o espaço de CPFs
+  válidos é pequeno (~10^9): quem tem o segredo reverte qualquer hash por força
+  bruta, e vazar um não pode custar os dois.
+
+Opcionais com padrão no código, expostas para trocar campanha sem rebuild:
+`REWARD_FIRST_MILESTONE` (25), `REWARD_MILESTONE_STEP` (50),
+`REWARD_MILESTONE_CENTS` (200), `REWARD_MONTHLY_BUDGET_CENTS` (50000).
 
 ### Depois de subir
 
 ```bash
 # Schema e blindagem (idempotentes):
 pnpm --filter @gastemenos/api db:deploy
+# `db:blindar` tem de rodar DEPOIS de toda migration que cria tabela — a RLS é
+# por tabela, e tabela nova nasce exposta à API pública do Supabase. As últimas
+# foram `RewardLedger` e `RewardBenefit`.
 DATABASE_URL="$DIRECT_URL" pnpm --filter @gastemenos/api db:blindar
 
 # Um admin, promovendo uma conta criada pelo app — ninguém nasce admin:

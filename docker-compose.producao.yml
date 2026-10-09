@@ -23,6 +23,16 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       USER_HASH_SECRET: ${USER_HASH_SECRET}
+      # Separado do USER_HASH_SECRET de proposito: o espaco de CPFs validos e
+      # pequeno (~10^9), entao quem tem o segredo reverte qualquer hash por
+      # forca bruta. Sem esta variavel a API NAO SOBE em producao.
+      CPF_HASH_SECRET: ${CPF_HASH_SECRET}
+      # Recompensa por notas lidas (docs/18-RECOMPENSAS.md). Tem padrao no
+      # codigo; estao aqui para trocar campanha sem rebuild.
+      REWARD_FIRST_MILESTONE: ${REWARD_FIRST_MILESTONE:-25}
+      REWARD_MILESTONE_STEP: ${REWARD_MILESTONE_STEP:-50}
+      REWARD_MILESTONE_CENTS: ${REWARD_MILESTONE_CENTS:-200}
+      REWARD_MONTHLY_BUDGET_CENTS: ${REWARD_MONTHLY_BUDGET_CENTS:-50000}
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY}
       SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-exportacoes}
