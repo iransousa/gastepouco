@@ -85,10 +85,15 @@ gastemenos/
   - `game:streak` todo domingo às 18h: aviso "sequência em risco".
   - `privacy:purge` diário: apaga contas com exclusão agendada vencida.
   - `lists:suggest` diário: calcula intervalos de recompra por produto e usuário.
+  - `stores:geocode-pending` às 02h40: tenta de novo as lojas que ficaram sem
+    região, **preenche as observações de preço que faltaram** nas notas já lidas
+    e reavalia os marcos de recompensa de quem foi afetado (`06-NFCE-LEITURA.md`).
+  - `rewards:pending-milestones` às 03h20: credita marco que ficou esperando por
+    teto do mês ou cadastro incompleto (`18-RECOMPENSAS.md`).
 
 ## Região e preços
 
-- Cada loja tem latitude/longitude (geocodificação do endereço da nota, com cache) e `geohash` de 5 caracteres (célula de cerca de 5 km).
+- Cada loja tem latitude/longitude (geocodificação do endereço da nota, com cache) e `geohash` de 5 caracteres (célula de cerca de 5 km). **Loja que não geocodifica fica sem região** e não gera observação de preço até a varredura noturna resolver: região errada mentiria sobre onde o preço foi visto.
 - A "região" do usuário é o geohash do CEP informado mais as 8 células vizinhas (raio aproximado de 5 km, como nas telas).
 - Preço da região = média aparada (descarta 10% nas pontas) das observações dos últimos 7 dias; histórico mensal = média aparada do mês.
 - **Anonimato mínimo**: um preço regional só aparece com pelo menos 5 notas de pelo menos 3 pessoas diferentes; abaixo disso a tela mostra "Ainda juntando preços desta região".

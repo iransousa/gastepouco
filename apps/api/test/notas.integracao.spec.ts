@@ -13,6 +13,7 @@ import { AmigosService } from '../src/modules/jogo/amigos.service.js';
 import { SelosService } from '../src/modules/jogo/selos.service.js';
 import { NotasService } from '../src/modules/notas/notas.service.js';
 import { ProdutosService } from '../src/modules/notas/produtos.service.js';
+import { GeocodificacaoService } from '../src/modules/notas/geocodificacao.service.js';
 import { RegistroDeAdaptadores } from '../src/modules/notas/adaptadores/registro.js';
 import { AdaptadorDoDf } from '../src/modules/notas/adaptadores/df.adaptador.js';
 import { AdaptadorDeSp } from '../src/modules/notas/adaptadores/sp.adaptador.js';
@@ -80,6 +81,14 @@ describe('leitura de nota (integração)', () => {
         AdaptadorDoDf,
         AdaptadorDeSp,
         ArmazenamentoService,
+        // Geocodificação com coordenada fixa: teste de leitura de nota não
+        // chama o Nominatim. Serviço público de terceiro dentro da suíte é
+        // teste que falha por rede e, pior, rajada contra quem hospeda de
+        // graça — a mesma razão que tirou o Supabase do teste do ZIP.
+        {
+          provide: GeocodificacaoService,
+          useValue: { coordenadasDe: async () => ({ lat: -15.7942, lng: -47.8822 }) },
+        },
         { provide: PrismaService, useValue: prisma },
       ],
     }).compile();

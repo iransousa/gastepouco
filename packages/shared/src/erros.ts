@@ -53,6 +53,10 @@ export const MENSAGENS: Record<string, string> = {
   CPF_ALREADY_USED:
     'Esse CPF já está em outra conta. A recompensa é uma por pessoa — entre com aquela conta ou fale com a gente.',
 
+  // Infraestrutura
+  EMAIL_SEND_FAILED:
+    'Não conseguimos enviar o e-mail agora. Tente de novo em alguns instantes.',
+
   // Genérico
   INTERNAL: 'Algo deu errado do nosso lado. Tente de novo em instantes.',
   OFFLINE: 'Sem internet. Mostrando o que já estava salvo.',

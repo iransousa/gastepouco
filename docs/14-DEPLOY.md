@@ -78,9 +78,20 @@ desenvolvimento do `.env.example`. E **dois deles não se trocam depois**:
   válidos é pequeno (~10^9): quem tem o segredo reverte qualquer hash por força
   bruta, e vazar um não pode custar os dois.
 
+**`SMTP_URL` deixou de ser opcional na prática.** Sem ela, em produção, o
+cadastro recusa com `EMAIL_SEND_FAILED`: não há como confirmar e-mail nem
+recuperar senha, e a recompensa exige e-mail confirmado. Serve qualquer
+provedor por SMTP — Resend, Brevo, SES, Postmark ou o relay do servidor.
+Entrar com o Google funciona sem ela (a sessão nasce no servidor), mas aí
+todo mundo depende do Google.
+
 Opcionais com padrão no código, expostas para trocar campanha sem rebuild:
 `REWARD_FIRST_MILESTONE` (25), `REWARD_MILESTONE_STEP` (50),
 `REWARD_MILESTONE_CENTS` (200), `REWARD_MONTHLY_BUDGET_CENTS` (50000).
+
+Geocodificação: `GEOCODER_URL`, `GEOCODER_USER_AGENT` (**precisa identificar o
+projeto com um contato** — é política de uso do Nominatim) e
+`GEOCODER_DISABLED=true` para desligar sem derrubar a leitura de nota.
 
 ### Depois de subir
 
@@ -91,6 +102,9 @@ pnpm --filter @gastemenos/api db:deploy
 # por tabela, e tabela nova nasce exposta à API pública do Supabase. As últimas
 # foram `RewardLedger` e `RewardBenefit`.
 DATABASE_URL="$DIRECT_URL" pnpm --filter @gastemenos/api db:blindar
+
+# Lojas que ficaram no ponto fixo antigo (centro de Brasília), se houver:
+npx dotenv -e .env.producao -- npx tsx apps/api/prisma/regeocodificar.mts --conferir
 
 # Um admin, promovendo uma conta criada pelo app — ninguém nasce admin:
 npx dotenv -e .env.producao -- npx tsx apps/api/prisma/promover-admin.mts voce@exemplo.com

@@ -165,9 +165,22 @@ demonstração e falha no dia seguinte.
 
 | O quê | Estado real |
 |---|---|
-| **E-mail** | **Nada é enviado.** Sem SMTP, o código vai para o log da API (é assim que se testa o cadastro). Com SMTP configurado, o serviço registra um aviso dizendo que o envio não foi implementado. Confirmação, recuperação de senha e avisos de segurança dependem disso. |
 | **Notificação push** | A inscrição do aparelho é guardada e **nada é enviado**: não há chamada de envio em lugar nenhum. A central de notificações dentro do app funciona. |
-| **Localização das lojas** | Toda loja recebe as coordenadas do **centro de Brasília**, fixas no código. Para o DF isso aproxima; para São Paulo coloca a loja na cidade errada — e a região (geohash) é o que agrupa os preços. **Precisa ser resolvido antes de os dados de SP valerem alguma coisa.** |
+
+Duas linhas saíram desta tabela em 09/10/2026, e viraram recurso de verdade:
+
+- **E-mail**: enviado por SMTP (`SMTP_URL` serve Resend, Brevo, SES, Postmark
+  ou o relay do servidor). Código e link de senha são críticos — se o envio
+  falha, a pessoa lê "tente de novo" em vez de esperar um e-mail que nunca vem.
+  Aviso de segurança é melhor esforço: falha fica no log e não derruba a troca
+  de senha. Sem SMTP em desenvolvimento, o código continua indo para o log; em
+  **produção** sem SMTP o cadastro recusa, e o segredo nunca é registrado.
+- **Localização das lojas**: geocodificação real pelo Nominatim, uma consulta
+  por segundo, com cache e tentativa por cidade quando o endereço da nota não
+  resolve. Não resolveu? A loja fica **sem região** — preço sem lugar certo
+  contamina a mediana de um bairro onde ninguém comprou. A varredura das 02h40
+  tenta de novo, preenche as observações que faltaram nas notas já lidas e
+  recredita os marcos de recompensa de quem foi afetado.
 
 ---
 

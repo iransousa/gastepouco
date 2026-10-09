@@ -44,12 +44,25 @@ function inteiroPositivo(nome: string, padrao: number): number {
   return valor;
 }
 
+/**
+ * Tudo em getter, e isto não é estilo: é o que faz a configuração ser lida **na
+ * hora do uso**, não na hora do `import`.
+ *
+ * Campo lido no import congela o valor do primeiro módulo carregado. Foi o que
+ * esconder o defeito do envio de e-mail: o teste definia `SMTP_URL` e o serviço
+ * continuava vendo vazio, porque o `configuracao` já tinha sido importado. Em
+ * produção o efeito é pior — variável definida tarde no boot passa despercebida.
+ */
 export const configuracao = {
-  ambiente: process.env.NODE_ENV ?? 'development',
+  get ambiente(): string {
+    return process.env.NODE_ENV ?? 'development';
+  },
   get ehProducao(): boolean {
     return this.ambiente === 'production';
   },
-  enderecoDoApp: process.env.APP_URL ?? 'http://127.0.0.1:5173',
+  get enderecoDoApp(): string {
+    return process.env.APP_URL ?? 'http://127.0.0.1:5173';
+  },
 
   jwt: {
     get segredo(): string {
@@ -128,17 +141,27 @@ export const configuracao = {
   },
 
   google: {
-    clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    callbackUrl: process.env.GOOGLE_CALLBACK_URL ?? 'http://127.0.0.1:3001/v1/auth/google/callback',
+    get clientId(): string {
+      return process.env.GOOGLE_CLIENT_ID ?? '';
+    },
+    get clientSecret(): string {
+      return process.env.GOOGLE_CLIENT_SECRET ?? '';
+    },
+    get callbackUrl(): string {
+      return process.env.GOOGLE_CALLBACK_URL ?? 'http://127.0.0.1:3001/v1/auth/google/callback';
+    },
     get configurado(): boolean {
       return Boolean(this.clientId && this.clientSecret);
     },
   },
 
   email: {
-    de: process.env.MAIL_FROM ?? 'GasteMenos <nao-responda@gastemenos.com.br>',
-    smtp: process.env.SMTP_URL ?? '',
+    get de(): string {
+      return process.env.MAIL_FROM ?? 'GasteMenos <nao-responda@gastemenos.com.br>';
+    },
+    get smtp(): string {
+      return process.env.SMTP_URL ?? '';
+    },
   },
 
   /**

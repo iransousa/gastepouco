@@ -43,10 +43,10 @@ plain words instead of promising it ([`docs/18-RECOMPENSAS.md`](docs/18-RECOMPEN
 | PWA: installable, works offline, asks before updating | working |
 | Admin panel: metrics, catalogue review, failed-receipt triage, audit trail | working |
 
-**Not working yet, stated plainly:** email delivery (verification codes go to
-the API log), push delivery (subscriptions are stored, nothing is sent), and
-store geocoding (every store currently gets Brasília's coordinates). The full,
-honest inventory — everything that exists and everything that does not — is in
+**Not working yet, stated plainly:** push delivery — subscriptions are stored
+and nothing is sent. Email now goes out over SMTP, and stores are geocoded for
+real; both were on this line until 9 October 2026. The full, honest inventory —
+everything that exists and everything that does not — is in
 [`docs/17-MANUAL.md`](docs/17-MANUAL.md).
 
 ## Why the receipt is the hard part

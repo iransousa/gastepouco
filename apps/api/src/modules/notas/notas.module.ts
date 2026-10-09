@@ -5,6 +5,8 @@ import { NotasService } from './notas.service.js';
 import { NotasProcessador, FILA_DE_NOTAS } from './notas.processador.js';
 import { BuscadorService } from './buscador.service.js';
 import { ProdutosService } from './produtos.service.js';
+import { GeocodificacaoService } from './geocodificacao.service.js';
+import { GeocodificacaoJob } from './geocodificacao.job.js';
 import { RegistroDeAdaptadores } from './adaptadores/registro.js';
 import { AdaptadorDoDf } from './adaptadores/df.adaptador.js';
 import { AdaptadorDeSp } from './adaptadores/sp.adaptador.js';
@@ -17,10 +19,12 @@ import { AdaptadorDeSp } from './adaptadores/sp.adaptador.js';
     NotasProcessador,
     BuscadorService,
     ProdutosService,
+    GeocodificacaoService,
+    GeocodificacaoJob,
     RegistroDeAdaptadores,
     AdaptadorDoDf,
     AdaptadorDeSp,
   ],
-  exports: [NotasService, ProdutosService],
+  exports: [NotasService, ProdutosService, GeocodificacaoService],
 })
 export class NotasModule {}

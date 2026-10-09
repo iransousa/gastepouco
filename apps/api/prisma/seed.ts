@@ -783,8 +783,14 @@ async function main(): Promise<void> {
       storeId: lojaPorCnpj.get(LOJAS[1]!.cnpj)!.id,
       priceCents: 1990,
       geohashes: [geohashDaRegiao],
-      startsAt: data(2026, 9, 20),
-      endsAt: data(2026, 10, 5),
+      // Janela **relativa a hoje**, não a setembro de 2026.
+      //
+      // Com data fixa, a oferta venceu em 05/10 e a tela Ofertas ficou sem
+      // patrocinada nenhuma: o teste do selo "Patrocinado" passou a falhar
+      // sozinho, e uma demonstração feita depois da data mostraria a tela
+      // vazia. Oferta é conteúdo com prazo — no seed ela acompanha o relógio.
+      startsAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      endsAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
     },
   });
 

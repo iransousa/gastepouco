@@ -93,7 +93,7 @@ type ParsedReceipt = {
 
 ## Depois de ler
 
-1. Cria ou atualiza `Store` (geocodifica o endereço uma vez).
+1. Cria ou atualiza `Store` (geocodifica o endereço uma vez — ver "Geocodificação" no fim).
 2. Casa cada item com `Product` (ver 02-ARQUITETURA, Produtos) e grava `PriceObservation`.
 3. Calcula a comparação com a média da região para a resposta ("Você pagou R$ 14,20 abaixo da média").
 4. Credita pontos, verifica nível, selos e sequência (07-GAMIFICACAO) numa única transação.
@@ -126,3 +126,57 @@ type ParsedReceipt = {
   `apps/api/test/fixtures/nfce/sp/montar.mjs`. O CPF do consumidor foi
   substituído por `000.000.000-00`; o campo continua lá porque o parser precisa
   detectar que existia.
+
+
+## Geocodificação da loja (09/10/2026)
+
+Até esta data **toda loja do país recebia as coordenadas do centro de
+Brasília**, fixas no código, com um comentário dizendo que a geocodificação viria
+na fase 5. O efeito não era "menos preciso": o `geohash` de 5 caracteres é a
+unidade de tudo que depende de região, então um mercado em Pinheiros caía no
+mesmo bloco de 5 km que um em Ceilândia. A "média da sua região" de quem mora em
+SP era calculada com compras do DF, e o piso de anonimato de 5 notas e 3 pessoas
+era atingido por gente de outro estado.
+
+Agora é o **Nominatim (OpenStreetMap)**, e o serviço segue a política de uso
+dele, que não é opcional — é um serviço público mantido por doação:
+
+- **uma consulta por segundo**, serializadas numa fila (dez notas processadas
+  juntas viram dez consultas em sequência, não dez simultâneas);
+- **User-Agent que identifica o projeto**, com contato (`GEOCODER_USER_AGENT`);
+- **cache** por endereço: a mesma loja é consultada uma vez na vida;
+- **tempo limite de 5 s** e nenhuma exceção para quem chamou.
+
+Duas tentativas, nesta ordem: endereço completo e, se falhar, **cidade + UF** —
+porque o endereço da NFC-e vem abreviado e com ruído (`R LUIZ GOES 1500 LJ 2`), e
+errar por quilômetros é muito melhor que errar por estados. **Só a UF não vale**:
+"DF, Brasil" devolve o centro do Distrito Federal, que é o mesmo defeito com
+outro nome.
+
+### O que acontece quando não resolve
+
+A loja fica **sem região** — `lat`, `lng` e `geohash` nulos — e a nota **não
+gera observação de preço**. É uma escolha: preço sem lugar certo contamina a
+mediana de um bairro onde ninguém comprou, e dado errado é pior que dado
+faltando num produto cuja promessa é "cada ponto tem uma nota atrás".
+
+O que a pessoa perde é temporário. O job `stores:geocode-pending` (02h40):
+
+1. tenta geocodificar de novo as lojas pendentes (200 por noite, pelo limite de
+   1 req/s);
+2. **preenche as observações que faltaram** nas notas já lidas daquela loja — sem
+   isso, geocodificar depois não serviria para nada, porque a observação só é
+   criada no instante em que a nota é concluída;
+3. **reavalia os marcos de recompensa** das pessoas afetadas, para o crédito não
+   esperar outra noite.
+
+Para a base que já tem lojas no ponto fixo antigo, há um script:
+
+```bash
+npx dotenv -e ../../.env -- npx tsx prisma/regeocodificar.mts --conferir  # mostra
+npx dotenv -e ../../.env -- npx tsx prisma/regeocodificar.mts            # faz
+```
+
+`GEOCODER_DISABLED=true` desliga tudo: a leitura de nota continua funcionando, e
+as lojas entram sem região.
+

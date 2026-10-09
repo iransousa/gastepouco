@@ -18,6 +18,7 @@ import { AmigosService } from '../jogo/amigos.service.js';
 import { SelosService } from '../jogo/selos.service.js';
 import { RecompensasService } from '../recompensas/recompensas.service.js';
 import { ProdutosService } from './produtos.service.js';
+import { GeocodificacaoService } from './geocodificacao.service.js';
 import { ArmazenamentoService } from '../armazenamento/armazenamento.service.js';
 import { RegistroDeAdaptadores } from './adaptadores/registro.js';
 import { ErroDeLeitura, type NotaLida } from './adaptadores/adaptador.js';
@@ -68,6 +69,7 @@ export class NotasService {
     private readonly selos: SelosService,
     private readonly armazenamento: ArmazenamentoService,
     private readonly recompensas: RecompensasService,
+    private readonly geocodificacao: GeocodificacaoService,
   ) {}
 
   /**
@@ -364,10 +366,18 @@ export class NotasService {
     const existente = await this.prisma.store.findUnique({ where: { cnpj: dados.cnpj } });
     if (existente) return existente;
 
-    // Geocodificação real entra na fase 5, junto com o módulo de preços. Até
-    // lá, a região vem do centro de Brasília para o DF — o que mantém o
-    // agregado funcionando sem prometer precisão que não temos.
-    const { lat, lng } = { lat: -15.7942, lng: -47.8822 };
+    // Geocodificação de verdade (docs/06-NFCE-LEITURA.md).
+    //
+    // Falhou? A loja entra **sem região**, e não com uma inventada. A nota vai
+    // para o histórico da pessoa do mesmo jeito; o que não acontece é a
+    // observação de preço, porque preço sem lugar certo contamina a mediana de
+    // um bairro onde ninguém comprou. O job noturno tenta de novo e, quando
+    // acerta, preenche as observações que faltaram — nada se perde, só atrasa.
+    const ponto = await this.geocodificacao.coordenadasDe(dados);
+
+    if (!ponto) {
+      this.logger.warn(`Loja ${dados.cnpj} entrou sem região: geocodificação não resolveu.`);
+    }
 
     return this.prisma.store.create({
       data: {
@@ -376,9 +386,9 @@ export class NotasService {
         address: dados.address ?? null,
         city: dados.city ?? null,
         uf: dados.uf,
-        lat,
-        lng,
-        geohash: codificarGeohash(lat, lng),
+        lat: ponto?.lat ?? null,
+        lng: ponto?.lng ?? null,
+        geohash: ponto ? codificarGeohash(ponto.lat, ponto.lng) : null,
       },
     });
   }

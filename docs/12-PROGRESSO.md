@@ -939,3 +939,97 @@ conferido por HTTP de ponta a ponta: 400 no CPF inválido, 200 com o mascarado d
 volta, 409 na segunda conta, 204 na remoção, consentimento gravado nos dois
 sentidos.
 
+
+## Os dois bloqueadores de produção (09/10/2026)
+
+Perguntei ao código o que faltava para subir, em vez de à memória. Três coisas
+apareceram, e uma delas era pior do que a lista dizia.
+
+### O deploy teria subido e morrido no boot
+
+`CPF_HASH_SECRET` passou a ser obrigatória com a mudança do CPF, e o
+`docker-compose.producao.yml` foi escrito antes dela. O Coolify mostraria deploy
+bem-sucedido e o container morreria reclamando de variável de ambiente. Uma
+linha de correção — e o tipo de erro que só aparece quando alguém lê a lista de
+`obrigatorio()` em vez de confiar no que o documento de deploy diz.
+
+### E-mail: não era "falta configurar", era "não existe"
+
+O documento dizia "o código vai para o log da API", o que soava como uma
+limitação de desenvolvimento. O que o código fazia era outra coisa:
+
+```ts
+if (!smtp) { log(...); return; }
+logger.warn('SMTP configurado mas o envio ainda não foi implementado');
+```
+
+Ou seja: **com ou sem SMTP, nada saía**. Em produção, a linha que registra o
+código é suprimida de propósito — então ninguém conseguiria criar conta, e o
+deploy pareceria saudável. Com a recompensa exigindo e-mail confirmado, o
+produto inteiro ficava atrás de um envio que não existia.
+
+Agora é SMTP de verdade (`nodemailer`), e a decisão que vale explicar é a
+distinção entre **crítico** e **aviso**: se o código de confirmação não sai, a
+falha sobe e a pessoa lê "tente de novo" — conta que nasce sem como ser
+confirmada é pior que cadastro recusado. Já um aviso de segurança não pode
+derrubar a ação que o originou: a senha foi trocada, e isso vale mais que o
+e-mail. Em produção sem SMTP o log sai como erro e **o segredo nunca é
+escrito** — quem lê log não precisa poder entrar na conta de ninguém.
+
+### O teste do e-mail achou um defeito na configuração
+
+Os primeiros seis testes falharam com o dublê de transporte sem ser chamado. O
+motivo não era o teste: `configuracao.email.smtp` era um **campo**, lido no
+`import`, não um getter. O valor congelava no primeiro módulo carregado, então
+definir `SMTP_URL` depois não tinha efeito nenhum — no teste e, pior, em produção
+com variável definida tarde no boot. O `armazenamento` já tinha aprendido isso e
+documentado ("tudo em getter: lido na hora do uso"); o resto do arquivo não. Agora
+`ambiente`, `enderecoDoApp`, `email` e `google` são todos getters.
+
+### Geocodificação: dado errado, não dado impreciso
+
+Toda loja do país recebia `lat: -15.7942, lng: -47.8822` — o centro de Brasília,
+fixo no código, com um comentário dizendo que a geocodificação viria na fase 5. A
+tabela de pendências chamava isso de "para São Paulo coloca a loja na cidade
+errada", o que subestima: o `geohash` de 5 caracteres é a unidade de **tudo** que
+depende de região. Um mercado em Pinheiros entrava no mesmo bloco de 5 km que um
+em Ceilândia; a "média da sua região" de quem mora em SP saía de compras do DF; e
+o piso de anonimato de 5 notas e 3 pessoas era atingido por gente de outro estado.
+Num produto cuja promessa é "cada ponto tem uma nota atrás", isso não é
+imprecisão — é mentira sobre onde o preço foi visto.
+
+Agora é Nominatim, com o que a política de uso dele exige: uma consulta por
+segundo serializada numa fila, User-Agent com contato, cache, e nenhuma exceção
+para quem chamou. Duas tentativas — endereço completo e, depois, cidade + UF,
+porque o endereço da NFC-e vem abreviado e com ruído, e errar por quilômetros é
+muito melhor que errar por estados.
+
+**E quando não resolve, a loja fica sem região.** A nota entra no histórico, mas
+não gera observação de preço. Foi a escolha mais difícil daqui, e o que a torna
+aceitável é a segunda metade: a varredura das 02h40 tenta de novo, **preenche as
+observações que faltaram** nas notas já lidas daquela loja e reavalia os marcos de
+recompensa de quem foi afetado. Sem essa segunda metade, geocodificar depois não
+serviria para nada — a observação só é criada no instante em que a nota é
+concluída, e esse instante já passou.
+
+Um teste meu caiu num caso que eu mesmo tinha escrito errado: sem endereço e sem
+cidade, a consulta ficava `"DF, Brasil"` e o Nominatim devolvia o centro do
+Distrito Federal — o defeito antigo com outro nome. Agora, sem endereço nem
+cidade, não há consulta.
+
+### E uma oferta que venceu sozinha
+
+Rodando a suíte, o teste do selo "Patrocinado" falhou: a oferta do seed ia de
+20/09 a **05/10**, e hoje é 09. Terceira vez que uma data fixa de seed aparece
+como teste falhando sozinho (antes foi o selo do mês e a exportação que virou
+chamada de rede). Pior que o teste: **a tela Ofertas ficaria vazia numa
+demonstração feita depois da data**, e o selo de patrocinado é parte da história
+de transparência do produto. A janela da oferta agora acompanha o relógio.
+
+Fica a observação para quem for gravar a demonstração: **as 15 notas da Camila
+são de setembro**, então a tela de gastos do mês corrente aparece vazia. Isso não
+é defeito de código, é escolha do seed — e ancorar o seed no mês corrente é uma
+decisão de produto, não uma correção.
+
+221 testes na API (eram 206), 126 nos pacotes, lint e typecheck limpos.
+
